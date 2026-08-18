@@ -114,9 +114,9 @@
         <article class="atlas-page" id="dragonfall">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall">
-              <img src="maps/dragonfall/Original.webp" alt="Original hand-drawn Dragonfall map scan" width="1072" height="804" loading="lazy">
+              <img src="maps/dragonfall/Original.webp" alt="Original hand-drawn Dragonfall map scan" width="1072" height="804">
               <div class="img-after">
-                <img src="maps/dragonfall/Remaster.png" alt="Remastered Dragonfall map" width="1365" height="1024" loading="lazy">
+                <img src="maps/dragonfall/Remaster.png" alt="Remastered Dragonfall map" width="1365" height="1024">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -185,12 +185,14 @@
 
   <script>
     (function(){
+      // Theme
       const root=document.documentElement;
       const toggle=document.querySelector('[data-theme-toggle]');
       let dark=matchMedia('(prefers-color-scheme: dark)').matches;
       root.setAttribute('data-theme',dark?'dark':'light');
       toggle?.addEventListener('click',()=>{dark=!dark;root.setAttribute('data-theme',dark?'dark':'light');});
 
+      // Lightbox
       const lightbox=document.getElementById('lightbox');
       const lightboxImage=document.getElementById('lightboxImage');
       const closeBtn=document.getElementById('closeLightbox');
@@ -205,27 +207,37 @@
       });
       function hideLightbox(){lightbox.classList.remove('open');lightbox.setAttribute('aria-hidden','true');lightboxImage.src='';}
       closeBtn.addEventListener('click',hideLightbox);
-      lightbox.addEventListener('click',e=>{if(e.target===lightbox) hideLightbox();});
-      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&lightbox.classList.contains('open')) hideLightbox();});
+      lightbox.addEventListener('click',e=>{if(e.target===lightbox)hideLightbox();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&lightbox.classList.contains('open'))hideLightbox();});
 
-      document.querySelectorAll('.compare-wrap').forEach(wrap=>{
+      // Compare sliders — init AFTER images load so getBoundingClientRect has real dimensions
+      function initCompare(wrap){
         const after=wrap.querySelector('.img-after');
         const divider=wrap.querySelector('.compare-divider');
         let dragging=false;
         function setPos(x){
           const r=wrap.getBoundingClientRect();
+          if(!r.width) return;
           const pct=Math.min(100,Math.max(0,((x-r.left)/r.width)*100));
           divider.style.left=pct+'%';
           after.style.clipPath='inset(0 '+(100-pct)+'% 0 0)';
         }
+        function initPos(){setPos(wrap.getBoundingClientRect().left+wrap.getBoundingClientRect().width*0.5);}
+        // Set to 50% once the base image has loaded
+        const baseImg=wrap.querySelector('img');
+        if(baseImg.complete){initPos();}else{baseImg.addEventListener('load',initPos);}
+        // Also re-init on window resize
+        window.addEventListener('resize',initPos);
         divider.addEventListener('mousedown',e=>{dragging=true;e.preventDefault();});
-        document.addEventListener('mousemove',e=>{if(dragging) setPos(e.clientX);});
+        document.addEventListener('mousemove',e=>{if(dragging)setPos(e.clientX);});
         document.addEventListener('mouseup',()=>{dragging=false;});
         divider.addEventListener('touchstart',e=>{dragging=true;e.preventDefault();},{passive:false});
-        document.addEventListener('touchmove',e=>{if(dragging) setPos(e.touches[0].clientX);},{passive:true});
+        document.addEventListener('touchmove',e=>{if(dragging)setPos(e.touches[0].clientX);},{passive:true});
         document.addEventListener('touchend',()=>{dragging=false;});
-        setPos(wrap.getBoundingClientRect().left+wrap.getBoundingClientRect().width*0.5);
-      });
+        // Allow clicking anywhere on the wrap to jump to that position
+        wrap.addEventListener('click',e=>{if(!dragging)setPos(e.clientX);});
+      }
+      document.querySelectorAll('.compare-wrap').forEach(initCompare);
     })();
   </script>
 </body>
