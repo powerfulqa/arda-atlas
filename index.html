@@ -39,25 +39,16 @@
     .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
     .atlas-page::before{content:"";position:absolute;top:0;bottom:0;left:calc(58% - 12px);width:24px;background:linear-gradient(90deg,rgba(0,0,0,.09),rgba(255,255,255,.06) 35%,rgba(0,0,0,.10));opacity:.22;pointer-events:none}
     .page-visual{display:grid;gap:var(--space-4)}
-
-    /* ── Compare slider ───────────────────────────────────────────────────────
-       The .img-after panel sits on top of the base image.
-       We reveal it from the LEFT by setting its width (not clip-path).
-       overflow:hidden on .compare-wrap clips the rest.
-       This is the most reliable technique across all mobile browsers.
-    ──────────────────────────────────────────────────────────────────────── */
     .compare-wrap{
       position:relative;
       border-radius:var(--radius-lg);
       overflow:hidden;
       border:1px solid var(--color-border);
       background:var(--color-surface-2);
-      /* Prevent the page from scrolling while finger is dragging the slider */
       touch-action:pan-y;
       user-select:none;
       -webkit-user-select:none;
     }
-    /* Base (original) image — fills the full container */
     .compare-wrap > img.img-base{
       display:block;
       width:100%;
@@ -65,26 +56,24 @@
       object-fit:cover;
       pointer-events:none;
     }
-    /* After (remaster) image — absolute, left-aligned, width driven by JS */
     .img-after{
       position:absolute;
       top:0; left:0; bottom:0;
-      width:50%;          /* JS overrides this */
-      overflow:hidden;    /* clips the img to the revealed width */
+      width:50%;
+      overflow:hidden;
     }
     .img-after img{
       display:block;
-      /* Match the base image exactly so the two line up */
       width:var(--cmp-w,100%);
       aspect-ratio:4/3;
       object-fit:cover;
-      max-width:none;     /* override global img{max-width:100%} */
+      max-width:none;
       pointer-events:none;
     }
     .compare-divider{
       position:absolute;
       top:0; bottom:0;
-      left:50%;           /* JS overrides this */
+      left:50%;
       width:3px;
       background:rgba(255,255,255,.88);
       transform:translateX(-50%);
@@ -96,7 +85,7 @@
       position:absolute;
       top:50%; left:50%;
       transform:translate(-50%,-50%);
-      width:44px; height:44px;  /* 44px touch target */
+      width:44px; height:44px;
       border-radius:999px;
       background:rgba(255,255,255,.92);
       border:2px solid var(--color-border);
@@ -118,7 +107,6 @@
     }
     .compare-label.orig{left:var(--space-3);background:rgba(30,20,10,.72);color:#fff}
     .compare-label.remas{right:var(--space-3);background:rgba(194,145,88,.85);color:#fff}
-
     .page-meta{display:grid;gap:var(--space-4);align-content:start}
     .page-no{font-size:var(--text-xs);letter-spacing:.22em;text-transform:uppercase;color:var(--color-text-muted)}
     .location{display:grid;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
@@ -160,7 +148,7 @@
     <section class="hero" id="top">
       <div class="hero-book">
         <div class="hero-copy">
-          <span class="eyebrow">World of Arda &mdash; Map Archive</span>
+          <span class="eyebrow">World of Arda - Map Archive</span>
           <h1>Every map from Arda, original and remastered, side by side.</h1>
           <p class="lead">A book-style atlas of the world of Arda. Each page shows the original hand-drawn scan alongside the Warcraft-style remaster, with location notes, region and lore.</p>
           <div class="intro-grid">
@@ -186,10 +174,8 @@
         <article class="atlas-page" id="dragonfall">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall">
-              <!-- img-base: the original scan, sets the container height -->
               <img class="img-base" src="maps/dragonfall/Original.webp"
                    alt="Original hand-drawn Dragonfall map scan" width="1072" height="804">
-              <!-- img-after: the remaster, revealed left-to-right by its container width -->
               <div class="img-after">
                 <img src="maps/dragonfall/Remaster.png"
                      alt="Remastered Dragonfall map" width="1365" height="1024">
@@ -208,7 +194,7 @@
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 001 &mdash; Dragonfall</div>
+            <div class="page-no">Page 001 - Dragonfall</div>
             <div>
               <h3>Dragonfall</h3>
               <p style="margin:.5rem 0 0;color:var(--color-text-muted)">An iron-mining city built around one of the last intact dragon skeletons in Arda.</p>
@@ -217,7 +203,7 @@
               <div><div class="label">Location</div><strong>Known settlement</strong></div>
               <div><div class="label">Region</div><span>Northern mountain basin</span></div>
               <div><div class="label">Landmark</div><span>Dragon skeleton above the city fortress</span></div>
-              <div><div class="label">Type</div><span>Mining city &mdash; Iron</span></div>
+              <div><div class="label">Type</div><span>Mining city - Iron</span></div>
               <div><div class="label">Status</div><span>Remastered</span></div>
             </div>
             <div class="tags">
@@ -231,7 +217,7 @@
           </div>
         </article>
 
-        <!-- ADD NEW MAPS BELOW — copy the article block above, update id, paths, page number, title and lore -->
+        <!-- ADD NEW MAPS BELOW - copy the article block above, update id, paths, page number, title and lore -->
 
       </div>
     </section>
@@ -241,7 +227,7 @@
         <div><h2>About this atlas</h2></div>
       </div>
       <div class="notes">
-        <div class="note"><strong>Original &amp; remaster</strong><br>Every page keeps both versions. Drag the slider to compare them directly without leaving the page.</div>
+        <div class="note"><strong>Original and remaster</strong><br>Every page keeps both versions. Drag the slider to compare them directly without leaving the page.</div>
         <div class="note"><strong>Location known?</strong><br>Each entry notes whether the location is confirmed in the world of Arda, or still being charted and discovered.</div>
         <div class="note"><strong>Growing over time</strong><br>400+ hand-drawn maps to be added as they are scanned and converted. New pages will appear here as each one is done.</div>
       </div>
@@ -249,7 +235,7 @@
   </main>
 
   <footer class="wrap">
-    Atlas of Arda &mdash; a living archive of hand-drawn and remastered maps. Hosted on GitHub Pages.
+    Atlas of Arda - a living archive of hand-drawn and remastered maps. Hosted on GitHub Pages.
   </footer>
 
   <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Map preview">
@@ -261,7 +247,6 @@
 
   <script>
     (function(){
-      // ── Theme toggle ──────────────────────────────────────────────────────
       const root = document.documentElement;
       const toggle = document.querySelector('[data-theme-toggle]');
       let dark = matchMedia('(prefers-color-scheme: dark)').matches;
@@ -271,7 +256,6 @@
         root.setAttribute('data-theme', dark ? 'dark' : 'light');
       });
 
-      // ── Lightbox ──────────────────────────────────────────────────────────
       const lightbox = document.getElementById('lightbox');
       const lightboxImage = document.getElementById('lightboxImage');
       const closeBtn = document.getElementById('closeLightbox');
@@ -293,35 +277,16 @@
       lightbox.addEventListener('click', e => { if (e.target === lightbox) hideLightbox(); });
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && lightbox.classList.contains('open')) hideLightbox(); });
 
-      // ── Compare sliders ───────────────────────────────────────────────────
-      //
-      // Technique: reveal the remaster by setting .img-after WIDTH (not clip-path).
-      // clip-path on an absolutely-positioned element is unreliable on Android
-      // Chrome when the element contains an <img> — it renders but the clip
-      // silently has no effect.  Width + overflow:hidden on the parent is
-      // universally supported and behaves identically.
-      //
-      // The inner remaster <img> must stay full-container-width at all times
-      // (set via --cmp-w CSS variable) so it doesn't shrink as the panel narrows.
-      //
-      // Touch: we use touchstart/touchmove on the WRAP (not the divider alone)
-      // so the full area is draggable on mobile.  We call e.preventDefault() on
-      // touchmove only when dragging to stop the page scrolling while swiping.
-
       function initCompare(wrap) {
         const afterPanel = wrap.querySelector('.img-after');
         const afterImg   = afterPanel.querySelector('img');
         const divider    = wrap.querySelector('.compare-divider');
         let dragging = false;
-        let pct = 50; // current position 0-100
 
         function applyPct(p) {
-          pct = Math.min(100, Math.max(0, p));
-          // Move the divider line
+          const pct = Math.min(100, Math.max(0, p));
           divider.style.left = pct + '%';
-          // Reveal the remaster panel by its width
           afterPanel.style.width = pct + '%';
-          // Keep the remaster image at full container width so it doesn't squash
           afterImg.style.width = wrap.offsetWidth + 'px';
         }
 
@@ -332,32 +297,25 @@
         }
 
         function initPos() {
-          // Set image width variable so inner img knows full container width
           afterImg.style.width = wrap.offsetWidth + 'px';
           applyPct(50);
         }
 
-        // Init once base image is loaded (so offsetWidth is real)
         const baseImg = wrap.querySelector('img.img-base');
         if (baseImg.complete) { initPos(); } else { baseImg.addEventListener('load', initPos); }
         window.addEventListener('resize', initPos);
 
-        // ── Mouse ─────────────────────────────────────────────────────────
         divider.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
         document.addEventListener('mousemove', e => { if (dragging) posFromX(e.clientX); });
         document.addEventListener('mouseup',   () => { dragging = false; });
 
-        // ── Touch — attach to the whole wrap for a larger drag target ─────
         wrap.addEventListener('touchstart', e => {
-          // Only start a drag if the touch is roughly horizontal (not a scroll)
           dragging = true;
           posFromX(e.touches[0].clientX);
-          // Don't preventDefault here — let the browser decide scroll vs drag
         }, { passive: true });
 
         wrap.addEventListener('touchmove', e => {
           if (!dragging) return;
-          // Suppress page scroll while swiping the compare slider
           e.preventDefault();
           posFromX(e.touches[0].clientX);
         }, { passive: false });
