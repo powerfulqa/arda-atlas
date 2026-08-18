@@ -14,7 +14,9 @@
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,rgba(194,145,88,.10),transparent 30%),var(--color-bg);color:var(--color-text);font:400 var(--text-base)/1.65 var(--font-body)}img{display:block;max-width:100%;height:auto}a{color:inherit}button{font:inherit}
     .skip{position:absolute;left:-9999px}.skip:focus{left:1rem;top:1rem;background:var(--color-surface);padding:.75rem 1rem;border-radius:.5rem}
     .wrap{max-width:1320px;margin:0 auto;padding:0 var(--space-4)}
-    header{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--color-border)}
+    /* Scoped to the site header only. A bare `header` selector would also catch
+       the <header> inside each .continent block and make it a second sticky bar. */
+    body > header{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--color-bg) 80%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--color-border)}
     .nav{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);padding:var(--space-4) 0}
     .brand{display:flex;align-items:center;gap:var(--space-3);text-decoration:none}
     .brand strong{font:700 var(--text-lg)/1 var(--font-display);letter-spacing:.04em}
@@ -36,9 +38,34 @@
     .section-top{display:flex;justify-content:space-between;gap:var(--space-4);align-items:end;margin-bottom:var(--space-6)}
     .section-top p{margin:0;max-width:58ch;color:var(--color-text-muted)}
     .atlas-shelf{display:grid;gap:var(--space-8)}
+    /* Sundering / continent overview */
+    .sunder{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:var(--space-8);align-items:center;padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
+    .sunder blockquote{margin:var(--space-4) 0 0;padding-left:var(--space-4);border-left:3px solid var(--color-primary);font:600 var(--text-lg)/1.35 var(--font-display);color:var(--color-text)}
+    .sunder blockquote cite{display:block;margin-top:var(--space-2);font:400 var(--text-sm)/1.5 var(--font-body);font-style:normal;color:var(--color-text-muted)}
+    .continent-list{display:grid;gap:var(--space-2);margin:0;padding:0;list-style:none}
+    .continent-list li{display:flex;align-items:center;gap:var(--space-3);padding:.55rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-2);font-size:var(--text-sm)}
+    .continent-list .num{flex:0 0 2.1rem;height:2.1rem;display:grid;place-items:center;border-radius:999px;border:1px solid var(--color-border);font:600 var(--text-xs)/1 var(--font-body);letter-spacing:.04em;color:var(--color-text-muted)}
+    .continent-list li[data-charted] .num{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+    .continent-list li[data-charted]{border-color:var(--color-primary)}
+    .continent-list .unknown{color:var(--color-text-muted);font-style:italic}
+    /* Continent grouping inside the atlas */
+    .continent{display:grid;gap:var(--space-6)}
+    .continent + .continent{margin-top:var(--space-12)}
+    .continent-head{display:grid;gap:var(--space-3);padding:var(--space-5) var(--space-6);background:var(--color-surface-2);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:var(--radius-lg)}
+    .continent-head h3{font-size:var(--text-xl)}
+    .continent-head p{margin:0;max-width:70ch;color:var(--color-text-muted)}
+    .continent-head .eyebrow{justify-self:start}
+    .pending{font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:999px;padding:.2rem .6rem;display:inline-block}
     .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
     .atlas-page::before{content:"";position:absolute;top:0;bottom:0;left:calc(58% - 12px);width:24px;background:linear-gradient(90deg,rgba(0,0,0,.09),rgba(255,255,255,.06) 35%,rgba(0,0,0,.10));opacity:.22;pointer-events:none}
-    .page-visual{display:grid;gap:var(--space-4)}
+    /* align-content:start stops the auto rows from stretching when the facing
+       meta column is taller than the map - otherwise .compare-wrap grows past
+       the image and the Original/Remastered labels float in dead space. */
+    .page-visual{display:grid;gap:var(--space-4);align-content:start}
+    /* Each atlas page sets --ar to its own map's width/height ratio, so portrait
+       and landscape maps both display whole instead of being cropped to 4:3.
+       The vh cap stops tall portrait maps from running off the screen. */
+    .atlas-page{--ar:1.333}
     .compare-wrap{
       position:relative;
       border-radius:var(--radius-lg);
@@ -48,11 +75,14 @@
       touch-action:pan-y;
       user-select:none;
       -webkit-user-select:none;
+      max-width:min(100%, calc(96vh * var(--ar)));
+      margin-inline:auto;
+      width:100%;
     }
     .compare-wrap > img.img-base{
       display:block;
       width:100%;
-      aspect-ratio:4/3;
+      aspect-ratio:var(--ar);
       object-fit:cover;
       pointer-events:none;
     }
@@ -65,7 +95,7 @@
     .img-after img{
       display:block;
       width:var(--cmp-w,100%);
-      aspect-ratio:4/3;
+      aspect-ratio:var(--ar);
       object-fit:cover;
       max-width:none;
       pointer-events:none;
@@ -124,7 +154,7 @@
     .lightbox-inner{max-width:min(1280px,100%);max-height:100%;position:relative}
     .lightbox img{max-height:84vh;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg)}
     .lightbox button{position:absolute;top:-.75rem;right:0;min-width:44px;min-height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(20,20,20,.86);color:#fff;cursor:pointer}
-    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid{grid-template-columns:1fr}.atlas-page::before{display:none}}
+    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}}
     @media(max-width:700px){.section-top{display:grid}.nav{align-items:flex-start;flex-direction:column}.nav-links{width:100%}}
   </style>
 </head>
@@ -137,6 +167,7 @@
         <strong>Atlas of Arda</strong>
       </a>
       <nav class="nav-links" aria-label="Primary">
+        <a href="#world">The World</a>
         <a href="#atlas">Atlas</a>
         <a href="#notes">Notes</a>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme">Theme</button>
@@ -150,7 +181,7 @@
         <div class="hero-copy">
           <span class="eyebrow">World of Arda - Map Archive</span>
           <h1>Every map from Arda, original and remastered, side by side.</h1>
-          <p class="lead">A book-style atlas of the world of Arda. Each page shows the original hand-drawn scan alongside the Warcraft-style remaster, with location notes, region and lore.</p>
+          <p class="lead">A book-style atlas of the world of Arda - seven sundered continents, charted one map at a time. Each page shows the original hand-drawn scan alongside the Warcraft-style remaster, with location notes, region and lore.</p>
           <div class="intro-grid">
             <div class="intro-card"><strong>Drag to compare</strong><br>Slide between the original drawing and the painted remaster on every page.</div>
             <div class="intro-card"><strong>Location notes</strong><br>Region, type, landmarks and campaign lore on the facing page.</div>
@@ -158,7 +189,36 @@
           </div>
         </div>
         <div class="hero-aside">
-          <img src="maps/dragonfall/Remaster.png" alt="Remastered Dragonfall fantasy map" width="1365" height="1024" loading="lazy">
+          <img src="maps/continent-1/dragonfall/remaster.png" alt="Remastered map of Dragonfall, an iron-mining city built around a dragon skeleton" width="1477" height="1065" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <section id="world">
+      <div class="section-top">
+        <div><h2>The sundering of Arda</h2></div>
+        <p>Why the atlas is organised by continent, and how much of the world is still uncharted.</p>
+      </div>
+      <div class="sunder">
+        <div>
+          <span class="eyebrow">World lore - from the author</span>
+          <blockquote>
+            Arda was originally a massive pangaea, but after a night of disaster when the world was still young, current-day Arda is now broken up into seven geographically distinct continents.
+            <cite>The author, on the shape of the world</cite>
+          </blockquote>
+          <p style="color:var(--color-text-muted)">Every map in this archive belongs to one of those seven landmasses. The atlas is grouped the same way, so each continent keeps its own run of pages as it is scanned and remastered. Six of the seven are still to be charted here.</p>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:var(--space-3)">The seven continents</div>
+          <ol class="continent-list">
+            <li data-charted><span class="num">I</span><span><strong>Continent One</strong><br><span class="unknown">Home of the humans - seat of the ruling King</span></span></li>
+            <li><span class="num">II</span><span class="unknown">Uncharted</span></li>
+            <li><span class="num">III</span><span class="unknown">Uncharted</span></li>
+            <li><span class="num">IV</span><span class="unknown">Uncharted</span></li>
+            <li><span class="num">V</span><span class="unknown">Uncharted</span></li>
+            <li><span class="num">VI</span><span class="unknown">Uncharted</span></li>
+            <li><span class="num">VII</span><span class="unknown">Uncharted</span></li>
+          </ol>
         </div>
       </div>
     </section>
@@ -168,17 +228,24 @@
         <div><h2>Atlas pages</h2></div>
         <p>Drag the slider on each map to compare the original hand-drawn scan with the remastered version.</p>
       </div>
-      <div class="atlas-shelf">
+
+      <article class="continent" id="continent-1">
+        <header class="continent-head">
+          <span class="eyebrow">Continent I of VII</span>
+          <h3>Continent One</h3>
+          <p>The main continent of Arda: home of the humans, and seat of power of the current ruling King. Its royal capital sits in Stormwind District, at the end of a paved processional causeway. <span class="pending">Continent name awaiting the author</span></p>
+        </header>
+        <div class="atlas-shelf">
 
         <!-- DRAGONFALL -->
-        <article class="atlas-page" id="dragonfall">
+        <article class="atlas-page" id="dragonfall" style="--ar:1.387">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall">
-              <img class="img-base" src="maps/dragonfall/Original.webp"
-                   alt="Original hand-drawn Dragonfall map scan" width="1072" height="804">
+              <img class="img-base" src="maps/continent-1/dragonfall/remaster.png"
+                   alt="Remastered Dragonfall map" width="1477" height="1065">
               <div class="img-after">
-                <img src="maps/dragonfall/Remaster.png"
-                     alt="Remastered Dragonfall map" width="1365" height="1024">
+                <img src="maps/continent-1/dragonfall/original.webp"
+                     alt="Original hand-drawn Dragonfall map scan" width="1280" height="923">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -189,8 +256,8 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/dragonfall/Remaster.png" data-alt="Remastered Dragonfall map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/dragonfall/Original.webp" data-alt="Original Dragonfall scan">Open original</button>
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dragonfall/remaster.png" data-alt="Remastered Dragonfall map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/dragonfall/original.webp" data-alt="Original Dragonfall scan">Open original</button>
             </div>
           </div>
           <div class="page-meta">
@@ -217,9 +284,398 @@
           </div>
         </article>
 
-        <!-- ADD NEW MAPS BELOW - copy the article block above, update id, paths, page number, title and lore -->
+        <!-- DIMROCK -->
+        <article class="atlas-page" id="dimrock" style="--ar:0.849">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-dimrock">
+              <img class="img-base" src="maps/continent-1/dimrock/remaster.png"
+                   alt="Remastered map of Dimrock, a village in an enclosed mountain valley" width="1156" height="1361" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/dimrock/original.jpg"
+                     alt="Original hand-drawn Dimrock map scan" width="2765" height="3255" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dimrock/remaster.png" data-alt="Remastered Dimrock map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/dimrock/original.jpg" data-alt="Original Dimrock scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 002 - Dimrock</div>
+            <div>
+              <h3>Dimrock</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A timber village on a green shelf deep inside a walled valley of grey rock, reached by a single bridge over the river.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known settlement</strong></div>
+              <div><div class="label">Region</div><span>Enclosed mountain valley</span></div>
+              <div><div class="label">Landmark</div><span>Ruined bell tower and roofless abbey</span></div>
+              <div><div class="label">Type</div><span>Village - highland</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">Village</span>
+              <span class="tag">Valley</span>
+              <span class="tag">Ruins</span>
+              <span class="tag">Mine</span>
+              <span class="tag">Forest</span>
+              <span class="tag">River</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> roughly twenty timber cabins and a longhouse sit on grassland ringed by sheer cliffs. A broken stone tower and a roofless abbey stand at the northern end. A plank bridge crosses the river to dense conifer forest on the west bank; a mine adit opens high in the northern rock face at the top of a switchback path, with a second cave mouth in the eastern cliff. Crop plots and a barn close off the southern end above the coast.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
 
-      </div>
+        <!-- DRAGONFALL DISTRICT -->
+        <article class="atlas-page" id="dragonfall-district" style="--ar:0.700">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-dragonfall-district">
+              <img class="img-base" src="maps/continent-1/dragonfall-district/remaster.png"
+                   alt="Remastered map of Dragonfall District, farmland around a moated stone ring" width="1049" height="1499" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/dragonfall-district/original.jpg"
+                     alt="Original hand-drawn Dragonfall District map scan" width="2595" height="3709" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dragonfall-district/remaster.png" data-alt="Remastered Dragonfall District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/dragonfall-district/original.jpg" data-alt="Original Dragonfall District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 003 - Dragonfall District</div>
+            <div>
+              <h3>Dragonfall District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">The wider farmland region around Dragonfall, laid out along cart roads radiating from a moated stone ring.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region</strong></div>
+              <div><div class="label">Region</div><span>Coastal lowland farmland</span></div>
+              <div><div class="label">Landmark</div><span>Moated stone ring at the district's heart</span></div>
+              <div><div class="label">Type</div><span>District - agricultural</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">District</span>
+              <span class="tag">Farmland</span>
+              <span class="tag">Castle</span>
+              <span class="tag">Standing stones</span>
+              <span class="tag">Windmill</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> a circular stone ring enclosed by a water channel sits at the centre, with grain fields and cottages pressed up against it. A red-bannered castle holds the northern bluff above a rocky shore; a walled burial compound sits opposite it to the north-east. A palisaded tent camp and a second banner ground lie west of the ring, a windmill hamlet in the south-west, and a cluster of round thatched huts with field strips in the south-east. Watchtowers, ruins, lakes and cave mouths are scattered between.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- GOREGROND DISTRICT -->
+        <article class="atlas-page" id="goregrond-district" style="--ar:0.725">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-goregrond-district">
+              <img class="img-base" src="maps/continent-1/goregrond-district/remaster.png"
+                   alt="Remastered map of Goregrond District, badlands with a fungal forest" width="1068" height="1473" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/goregrond-district/original.jpg"
+                     alt="Original hand-drawn Goregrond District map scan" width="2897" height="3994" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/goregrond-district/remaster.png" data-alt="Remastered Goregrond District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/goregrond-district/original.jpg" data-alt="Original Goregrond District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 004 - Goregrond District</div>
+            <div>
+              <h3>Goregrond District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">Arid badlands of mesas and cactus scrub, held by a stone fortress in the north and warrens in the hills.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region</strong></div>
+              <div><div class="label">Region</div><span>Mesa badlands</span></div>
+              <div><div class="label">Landmark</div><span>Fungal forest and the black obelisk</span></div>
+              <div><div class="label">Type</div><span>District - frontier</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">District</span>
+              <span class="tag">Badlands</span>
+              <span class="tag">Fungal forest</span>
+              <span class="tag">Fortress</span>
+              <span class="tag">Warrens</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the harshest district charted so far. A forest of enormous red and blue mushrooms grows on pink-stained ground beside the river in the north-west. A grey stone fortress with an open fighting pit commands the northern road. To the west, a carved mesa stronghold stands over a black obelisk; hill warrens topped with tusked totems and hide huts occupy the eastern rises. Cactus, mesa stumps, thicket blocks, a cave mouth and a lone windmill fill the dry ground between, with autumn woodland along the north.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- HELMSVARD DISTRICT -->
+        <article class="atlas-page" id="helmsvard-district" style="--ar:0.705">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-helmsvard-district">
+              <img class="img-base" src="maps/continent-1/helmsvard-district/remaster.png"
+                   alt="Remastered map of Helmsvard District, a coastal archipelago and port town" width="1053" height="1493" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/helmsvard-district/original.jpg"
+                     alt="Original hand-drawn Helmsvard District map scan" width="2632" height="3730" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/helmsvard-district/remaster.png" data-alt="Remastered Helmsvard District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/helmsvard-district/original.jpg" data-alt="Original Helmsvard District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 005 - Helmsvard District</div>
+            <div>
+              <h3>Helmsvard District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A drowned coastline of islands and straits, stitched together by one long causeway road and a working port.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region</strong></div>
+              <div><div class="label">Region</div><span>Coastal archipelago</span></div>
+              <div><div class="label">Landmark</div><span>Northern lighthouse and the strait causeway</span></div>
+              <div><div class="label">Type</div><span>District - maritime</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">District</span>
+              <span class="tag">Archipelago</span>
+              <span class="tag">Port</span>
+              <span class="tag">Lighthouse</span>
+              <span class="tag">Causeway</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> more water than land. A lighthouse crowns the northernmost islet beside a round walled watch-fort, and a single road runs the length of a narrow peninsula from there to the southern shore. The port town at the centre pushes a dozen timber piers out into the strait. A small isle mid-channel holds a ruined chapel among crags; the eastern shore carries forested hamlets and watchtowers. A southern town with a chapel and hedge maze connects onward by a long timber trestle bridge. A dead tree marks the north-eastern island.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- STORMWIND DISTRICT -->
+        <article class="atlas-page" id="stormwind-district" style="--ar:0.703">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-stormwind-district">
+              <img class="img-base" src="maps/continent-1/stormwind-district/remaster.png"
+                   alt="Remastered map of Stormwind District, the royal capital and its processional causeway" width="1051" height="1496" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/stormwind-district/original.jpg"
+                     alt="Original hand-drawn Stormwind District map scan" width="2775" height="3956" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/stormwind-district/remaster.png" data-alt="Remastered Stormwind District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/stormwind-district/original.jpg" data-alt="Original Stormwind District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 006 - Stormwind District</div>
+            <div>
+              <h3>Stormwind District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">The royal capital district and seat of power of the current ruling King, built along a single paved processional way.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region - royal seat</strong></div>
+              <div><div class="label">Region</div><span>Northern coast of Continent One</span></div>
+              <div><div class="label">Landmark</div><span>The processional causeway and the cathedral city</span></div>
+              <div><div class="label">Type</div><span>Capital district</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">Capital</span>
+              <span class="tag">Royal seat</span>
+              <span class="tag">Cathedral</span>
+              <span class="tag">Causeway</span>
+              <span class="tag">Garrison</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the seat of the kingdom. A white and gold spired city with blue roofs occupies the whole northern coast, and one broad paved causeway runs the entire length of the map from its main gate, broken by three fortified barbicans flying blue royal banners. A colossal ancient tree stands in the western woods above a district of pale towers. Military encampments in blue line the west and the barbican approaches; a red-and-white striped tournament pavilion sits east. Foundries with smoking chimneys and an artillery emplacement hold the north-east and the southern edge, with field strips beyond.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- TRUESSANT DISTRICT -->
+        <article class="atlas-page" id="truessant-district" style="--ar:1.420">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-truessant-district">
+              <img class="img-base" src="maps/continent-1/truessant-district/remaster.png"
+                   alt="Remastered map of Truessant District, a tropical basin below tiered waterfalls" width="1494" height="1052" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/truessant-district/original.jpg"
+                     alt="Original hand-drawn Truessant District map scan" width="3851" height="2712" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/truessant-district/remaster.png" data-alt="Remastered Truessant District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/truessant-district/original.jpg" data-alt="Original Truessant District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 007 - Truessant District</div>
+            <div>
+              <h3>Truessant District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A warm palm-grown basin fed by tiered waterfalls, overlooked by a city terraced into the rock.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region</strong></div>
+              <div><div class="label">Region</div><span>Tropical river basin</span></div>
+              <div><div class="label">Landmark</div><span>The tiered falls and the arched aqueduct</span></div>
+              <div><div class="label">Type</div><span>District - tropical</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">District</span>
+              <span class="tag">Tropical</span>
+              <span class="tag">Waterfalls</span>
+              <span class="tag">Aqueduct</span>
+              <span class="tag">Hill city</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the only landscape page in the district set, and the only tropical one. Water steps down from a mountain lake in the north-west over several falls into the river that feeds the basin. A great arched stone bridge carries the northern road over a waterfall at the top of the map. A blue-bannered city climbs the rock in tiers at the north-east corner above its own harbour. Palm groves cover the central plain; a blue-bannered keep with a drill yard stands west of centre, cave mouths and grottoes open in the western massif, and blossoming orchards, fenced pasture and a southern gatehouse close the basin.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- WAVESWATER -->
+        <article class="atlas-page" id="waveswater" style="--ar:0.734">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-waveswater">
+              <img class="img-base" src="maps/continent-1/waveswater/remaster.png"
+                   alt="Remastered map of Waveswater, a wetland delta below a summit castle" width="1075" height="1464" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/waveswater/original.jpg"
+                     alt="Original hand-drawn Waveswater map scan" width="2915" height="3969" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/waveswater/remaster.png" data-alt="Remastered Waveswater map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/waveswater/original.jpg" data-alt="Original Waveswater scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 008 - Waveswater</div>
+            <div>
+              <h3>Waveswater</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A great lake and its braided marsh delta, with a castle on the summit above and a walled island city below.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known settlement</strong></div>
+              <div><div class="label">Region</div><span>Lakeland and wetland delta</span></div>
+              <div><div class="label">Landmark</div><span>Summit castle and the ringed island city</span></div>
+              <div><div class="label">Type</div><span>Lakeland - mixed settlement</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">Wetland</span>
+              <span class="tag">Delta</span>
+              <span class="tag">Lake</span>
+              <span class="tag">Summit castle</span>
+              <span class="tag">Stilt village</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> open lake fills the north. A sheer grey mountain rises from its eastern shore with a castle on the very summit, a cliffside village on ledges below it beside two waterfalls, and a switchback road climbing between them. West and south of the lake the land dissolves into reed channels and islets carrying stilt villages, huts and ruins among palm and willow. A circular walled island city sits in the river mouth at the south-east corner; a walled barracks compound and a watchtower hold the southern approach. A fishing boat is drawn up on the eastern shore, and a cave opens at the mountain's foot.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- WEST HAVEN DISTRICT -->
+        <article class="atlas-page" id="west-haven-district" style="--ar:0.700">
+          <div class="page-visual">
+            <div class="compare-wrap" id="cmp-west-haven-district">
+              <img class="img-base" src="maps/continent-1/west-haven-district/remaster.png"
+                   alt="Remastered map of West Haven District, farmland below a crater volcano" width="1049" height="1499" loading="lazy">
+              <div class="img-after">
+                <img src="maps/continent-1/west-haven-district/original.jpg"
+                     alt="Original hand-drawn West Haven District map scan" width="2765" height="3960" loading="lazy">
+              </div>
+              <div class="compare-divider">
+                <div class="compare-handle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
+                </div>
+              </div>
+              <span class="compare-label orig">Original</span>
+              <span class="compare-label remas">Remastered</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" data-lightbox="maps/continent-1/west-haven-district/remaster.png" data-alt="Remastered West Haven District map">Open remaster</button>
+              <button class="btn" type="button" data-lightbox="maps/continent-1/west-haven-district/original.jpg" data-alt="Original West Haven District scan">Open original</button>
+            </div>
+          </div>
+          <div class="page-meta">
+            <div class="page-no">Page 009 - West Haven District</div>
+            <div>
+              <h3>West Haven District</h3>
+              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A narrow farming isthmus of blossom woods and tilled strips, running south from an active volcano.</p>
+            </div>
+            <div class="location">
+              <div><div class="label">Location</div><strong>Known region</strong></div>
+              <div><div class="label">Region</div><span>Volcanic isthmus</span></div>
+              <div><div class="label">Landmark</div><span>Crater volcano and the great white tree</span></div>
+              <div><div class="label">Type</div><span>District - agricultural</span></div>
+              <div><div class="label">Status</div><span>Remastered</span></div>
+            </div>
+            <div class="tags">
+              <span class="tag">District</span>
+              <span class="tag">Volcano</span>
+              <span class="tag">Blossom woods</span>
+              <span class="tag">Farmland</span>
+              <span class="tag">Manor</span>
+            </div>
+            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> a smoking volcano closes the northern end, its crater lake feeding a river that runs almost dead straight down the centre of the district and is crossed by three timber bridges. Pink and white blossom woodland spreads across the north and west, with a great white-canopied tree at its heart. A blue-bannered stone keep with two round palisaded granaries stands east of the river; a blue-bannered walled castle and tent camp hold the west shore. A pink manor and its walled estate fields sit to the east. Broad tilled strips fill the centre and south, with a barrel-stacked timber warehouse in the south-west and mine works below the volcano. Sea on both flanks.</p>
+            <p><span class="pending">Lore awaiting author notes</span></p>
+          </div>
+        </article>
+
+        <!-- ADD NEW MAPS FOR CONTINENT ONE BELOW - copy an article block above, update id, --ar, paths, page number, title and lore -->
+
+        </div>
+      </article>
+
+      <!-- ADD FURTHER CONTINENTS AS SIBLING <article class="continent"> BLOCKS HERE -->
+
     </section>
 
     <section id="notes">
@@ -228,7 +684,10 @@
       </div>
       <div class="notes">
         <div class="note"><strong>Original and remaster</strong><br>Every page keeps both versions. Drag the slider to compare them directly without leaving the page.</div>
+        <div class="note"><strong>Grouped by continent</strong><br>Arda's seven sundered continents each get their own run of pages. Continent One is charted first; the other six follow as their maps are scanned.</div>
+        <div class="note"><strong>Page numbers are permanent</strong><br>Each map keeps the page number it was given when it entered the archive. Pages are never renumbered, so a reference stays valid forever.</div>
         <div class="note"><strong>Location known?</strong><br>Each entry notes whether the location is confirmed in the world of Arda, or still being charted and discovered.</div>
+        <div class="note"><strong>Author's lore pending</strong><br>Where a page shows "lore awaiting author notes", the description records only what is visibly drawn on the map. The author's own lore replaces it as it arrives.</div>
         <div class="note"><strong>Growing over time</strong><br>400+ hand-drawn maps to be added as they are scanned and converted. New pages will appear here as each one is done.</div>
       </div>
     </section>
