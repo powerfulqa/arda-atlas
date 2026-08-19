@@ -9,6 +9,33 @@
     "heroImage": "continent-1/dragonfall",
     "footer": "Atlas of Arda - a living archive of hand-drawn and remastered maps. Hosted on GitHub Pages."
   },
+  "analytics": {
+    "provider": "goatcounter",
+    "endpoint": "https://powerfulqa.goatcounter.com/count",
+    "script": "assets/count.js",
+    "countViewerOpens": true
+  },
+  "renditions": [
+    {
+      "id": "original",
+      "label": "Original",
+      "basename": "original",
+      "role": "base",
+      "note": "The author's hand-drawn scan. Always the left side of the compare slider."
+    },
+    {
+      "id": "remaster",
+      "label": "Remaster",
+      "basename": "remaster",
+      "note": "Warcraft-style remaster."
+    },
+    {
+      "id": "retouched",
+      "label": "Retouched",
+      "basename": "retouched",
+      "note": "New directed art style."
+    }
+  ],
   "introCards": [
     {
       "title": "Drag to compare",
@@ -82,9 +109,7 @@
           ],
           "onMap": null,
           "lore": "The city grew up around the bones of the last great dragon. The fortress walls were built from the stone of the mountain the dragon fell into. Iron veins run deep beneath.",
-          "lorePending": false,
-          "original": "original.webp",
-          "remaster": "remaster.png"
+          "lorePending": false
         },
         {
           "page": 2,
@@ -106,9 +131,7 @@
           ],
           "onMap": "roughly twenty timber cabins and a longhouse sit on grassland ringed by sheer cliffs. A broken stone tower and a roofless abbey stand at the northern end. A plank bridge crosses the river to dense conifer forest on the west bank; a mine adit opens high in the northern rock face at the top of a switchback path, with a second cave mouth in the eastern cliff. Crop plots and a barn close off the southern end above the coast.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 3,
@@ -129,9 +152,7 @@
           ],
           "onMap": "a circular stone ring enclosed by a water channel sits at the centre, with grain fields and cottages pressed up against it. A red-bannered castle holds the northern bluff above a rocky shore; a walled burial compound sits opposite it to the north-east. A palisaded tent camp and a second banner ground lie west of the ring, a windmill hamlet in the south-west, and a cluster of round thatched huts with field strips in the south-east. Watchtowers, ruins, lakes and cave mouths are scattered between.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 4,
@@ -152,9 +173,7 @@
           ],
           "onMap": "the harshest district charted so far. A forest of enormous red and blue mushrooms grows on pink-stained ground beside the river in the north-west. A grey stone fortress with an open fighting pit commands the northern road. To the west, a carved mesa stronghold stands over a black obelisk; hill warrens topped with tusked totems and hide huts occupy the eastern rises. Cactus, mesa stumps, thicket blocks, a cave mouth and a lone windmill fill the dry ground between, with autumn woodland along the north.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 5,
@@ -175,9 +194,7 @@
           ],
           "onMap": "more water than land. A lighthouse crowns the northernmost islet beside a round walled watch-fort, and a single road runs the length of a narrow peninsula from there to the southern shore. The port town at the centre pushes a dozen timber piers out into the strait. A small isle mid-channel holds a ruined chapel among crags; the eastern shore carries forested hamlets and watchtowers. A southern town with a chapel and hedge maze connects onward by a long timber trestle bridge. A dead tree marks the north-eastern island.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 6,
@@ -198,9 +215,7 @@
           ],
           "onMap": "the seat of the kingdom. A white and gold spired city with blue roofs occupies the whole northern coast, and one broad paved causeway runs the entire length of the map from its main gate, broken by three fortified barbicans flying blue royal banners. A colossal ancient tree stands in the western woods above a district of pale towers. Military encampments in blue line the west and the barbican approaches; a red-and-white striped tournament pavilion sits east. Foundries with smoking chimneys and an artillery emplacement hold the north-east and the southern edge, with field strips beyond.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 7,
@@ -221,9 +236,7 @@
           ],
           "onMap": "the only landscape page in the district set, and the only tropical one. Water steps down from a mountain lake in the north-west over several falls into the river that feeds the basin. A great arched stone bridge carries the northern road over a waterfall at the top of the map. A blue-bannered city climbs the rock in tiers at the north-east corner above its own harbour. Palm groves cover the central plain; a blue-bannered keep with a drill yard stands west of centre, cave mouths and grottoes open in the western massif, and blossoming orchards, fenced pasture and a southern gatehouse close the basin.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 8,
@@ -244,9 +257,7 @@
           ],
           "onMap": "open lake fills the north. A sheer grey mountain rises from its eastern shore with a castle on the very summit, a cliffside village on ledges below it beside two waterfalls, and a switchback road climbing between them. West and south of the lake the land dissolves into reed channels and islets carrying stilt villages, huts and ruins among palm and willow. A circular walled island city sits in the river mouth at the south-east corner; a walled barracks compound and a watchtower hold the southern approach. A fishing boat is drawn up on the eastern shore, and a cave opens at the mountain's foot.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         },
         {
           "page": 9,
@@ -267,17 +278,9 @@
           ],
           "onMap": "a smoking volcano closes the northern end, its crater lake feeding a river that runs almost dead straight down the centre of the district and is crossed by three timber bridges. Pink and white blossom woodland spreads across the north and west, with a great white-canopied tree at its heart. A blue-bannered stone keep with two round palisaded granaries stands east of the river; a blue-bannered walled castle and tent camp hold the west shore. A pink manor and its walled estate fields sit to the east. Broad tilled strips fill the centre and south, with a barrel-stacked timber warehouse in the south-west and mine works below the volcano. Sea on both flanks.",
           "lore": null,
-          "lorePending": true,
-          "original": "original.jpg",
-          "remaster": "remaster.png"
+          "lorePending": true
         }
       ]
     }
-  ],
-  "analytics": {
-    "provider": "goatcounter",
-    "endpoint": "https://powerfulqa.goatcounter.com/count",
-    "script": "assets/count.js",
-    "countViewerOpens": true
-  }
+  ]
 }

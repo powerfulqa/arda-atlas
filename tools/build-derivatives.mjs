@@ -36,8 +36,16 @@ const FORCE = process.argv.includes('--force');
  */
 const NARROW_WIDTH = 700;
 
-/** Master basenames we derive from, in the order they appear on a page. */
-const KINDS = ['original', 'remaster'];
+/**
+ * Master basenames we derive from, read from the manifest's rendition config so
+ * adding a new art pass is a config change rather than a code change. A map
+ * that does not yet have a given rendition is simply skipped, which lets a new
+ * pass roll out one map at a time.
+ */
+const manifest = JSON.parse(
+  await fs.readFile(path.join(ROOT, 'data', 'maps.json'), 'utf8')
+);
+const KINDS = manifest.renditions.map((r) => r.basename);
 
 /** The map whose remaster becomes the social card. */
 const SOCIAL_CARD_SOURCE = 'continent-1/stormwind-district';
@@ -93,12 +101,14 @@ async function main() {
   let written = 0;
   let skipped = 0;
   const rows = [];
+  const missing = [];
 
   for (const { rel, dir } of dirs) {
     for (const kind of KINDS) {
       const src = await findMaster(dir, kind);
       if (!src) {
-        console.warn(`  ! ${rel}: no ${kind}.* master found - skipping`);
+        // Expected while a new rendition is only part-way rolled out.
+        missing.push(`${rel}/${kind}`);
         continue;
       }
       const dest = path.join(dir, `display-${kind}.webp`);
@@ -169,6 +179,18 @@ async function main() {
       `  ${r.map.padEnd(34)} ${r.kind.padEnd(9)} ` +
       `${(r.dims + ' ' + kb(r.display)).padEnd(24)} ${r.narrowDims} ${kb(r.narrow)}`
     );
+  }
+
+  if (missing.length) {
+    const byKind = {};
+    for (const m of missing) {
+      const k = m.split('/').pop();
+      (byKind[k] ??= []).push(m.split('/').slice(0, -1).join('/'));
+    }
+    console.log('');
+    for (const [kind, maps] of Object.entries(byKind)) {
+      console.log(`  not yet present: ${kind} on ${maps.length} map(s) - rendition still rolling out`);
+    }
   }
 
   console.log('');

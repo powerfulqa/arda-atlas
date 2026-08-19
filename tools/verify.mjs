@@ -13,6 +13,7 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const html = await fs.readFile(path.join(ROOT, 'index.html'), 'utf8');
+const manifest = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'maps.json'), 'utf8'));
 
 const failures = [];
 const note = (ok, label, detail) => {
@@ -39,7 +40,11 @@ const srcsetRefs = [...html.matchAll(/srcset="([^"]+)"/g)].flatMap((m) =>
 );
 const refs = [
   ...new Set([
-    ...[...html.matchAll(/(?:src|href|data-view)="((?:maps|assets)\/[^"]+)"/g)].map((m) => m[1]),
+    // data-master is how a switcher button carries the master for a rendition
+    // that is not currently selected - without it those masters read as orphans.
+    ...[...html.matchAll(/(?:src|href|data-view|data-master)="((?:maps|assets)\/[^"]+)"/g)].map(
+      (m) => m[1]
+    ),
     ...srcsetRefs,
   ]),
 ];
@@ -74,14 +79,70 @@ for (const [, id, ar, baseSrc, overlaySrc] of panes) {
   const meta = await sharp(path.join(ROOT, baseSrc)).metadata();
   const actual = meta.width / meta.height;
   if (Math.abs(+ar - actual) > 0.002) arBad.push(`${id}: --ar ${ar} vs ${actual.toFixed(3)}`);
-  // Base must be the remaster and the overlay the original, so the overlay
-  // grows from the left and sits under the "Original" label.
-  if (!baseSrc.includes('display-remaster') || !overlaySrc.includes('display-original')) {
+  // The overlay must be the original scan, so it grows from the left and sits
+  // under the "Original" label. The base is whichever rendition is selected.
+  if (baseSrc.includes('display-original') || !overlaySrc.includes('display-original')) {
     layerBad.push(`${id}: base=${path.basename(baseSrc)} overlay=${path.basename(overlaySrc)}`);
   }
 }
 note(arBad.length === 0, `all --ar values match their base image ratio`, arBad.join('; '));
-note(layerBad.length === 0, `base=remaster, overlay=original on every pane`, layerBad.join('; '));
+note(layerBad.length === 0, `overlay is the original scan on every pane`, layerBad.join('; '));
+
+console.log('\nRenditions');
+const rendCfg = manifest.renditions;
+const baseCfg = rendCfg.find((r) => r.role === 'base');
+const rendCounts = {};
+const rendProblems = [];
+const AR_TOLERANCE = 0.02; // 2%
+
+for (const c of manifest.continents) {
+  for (const m of c.maps) {
+    const dir = path.join(ROOT, 'maps', c.id, m.slug);
+    const entries = await fs.readdir(dir);
+    const found = [];
+    let baseAr = null;
+
+    for (const cfg of rendCfg) {
+      const master = entries.find((f) => path.basename(f, path.extname(f)) === cfg.basename);
+      if (!master) continue;
+      found.push(cfg.id);
+      rendCounts[cfg.id] = (rendCounts[cfg.id] ?? 0) + 1;
+
+      const meta = await sharp(path.join(dir, master)).metadata();
+      const ratio = meta.width / meta.height;
+      if (cfg.role === 'base') {
+        baseAr = ratio;
+      } else if (baseAr) {
+        // --ar comes from the selected rendition and is applied to BOTH images
+        // via object-fit:cover, so a divergent rendition crops the scan.
+        const drift = Math.abs(ratio - baseAr) / baseAr;
+        if (drift > AR_TOLERANCE) {
+          rendProblems.push(
+            `${m.slug}/${cfg.id} is ${(drift * 100).toFixed(1)}% off the scan's ratio - would crop`
+          );
+        }
+      }
+
+      for (const tier of [`display-${cfg.basename}.webp`, `display-${cfg.basename}-700.webp`]) {
+        if (!entries.includes(tier)) {
+          rendProblems.push(`${m.slug}: missing ${tier} - run npm run derivatives`);
+        }
+      }
+    }
+    if (!found.includes(baseCfg.id)) rendProblems.push(`${m.slug}: no base scan`);
+    if (found.length < 2) rendProblems.push(`${m.slug}: only has [${found.join(', ') || 'nothing'}]`);
+  }
+}
+console.log(
+  `  present: ${Object.entries(rendCounts).map(([k, v]) => `${k} x${v}`).join(', ')}`
+);
+note(
+  rendProblems.length === 0,
+  `every rendition is within ${AR_TOLERANCE * 100}% of its scan's aspect ratio and has both display tiers`,
+  rendProblems.slice(0, 6).join('; ')
+);
+const switchers = [...html.matchAll(/<div class="rend-switch"/g)].length;
+console.log(`  ${switchers} switcher(s) rendered - shown only where a map has 2+ art passes`);
 
 console.log('\nResponsive images');
 const imgTags = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
@@ -159,7 +220,6 @@ console.log('\nGenerated-file guard');
 note(/GENERATED FILE - DO NOT EDIT BY HAND/.test(html), 'index.html carries the generated-file banner');
 
 console.log('\nAnalytics');
-const manifest = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'maps.json'), 'utf8'));
 if (!manifest.analytics) {
   console.log('  SKIP  no analytics block in the manifest');
 } else {
@@ -174,14 +234,23 @@ if (!manifest.analytics) {
     const vendored = await fs.readFile(path.join(ROOT, tag[2]), 'utf8');
     note(/window\.goatcounter/.test(vendored) && /\}\)\(\);?\s*$/.test(vendored.trim() + ''), 'vendored count.js looks complete');
   }
-  const events = [...html.matchAll(/data-event="([^"]+)"/g)].map((m) => m[1]);
-  const viewButtons = [...html.matchAll(/data-view="/g)].length;
+  // Only buttons that actually open the viewer fire an event. Switcher chips
+  // also carry data-event, but purely as data used to repoint the open button
+  // when the selection changes, so they must be excluded from both counts.
+  const viewerTags = [...html.matchAll(/<button\b[^>]*data-view="[^"]*"[^>]*>/g)].map((m) => m[0]);
+  const viewerEvents = viewerTags
+    .map((t) => t.match(/data-event="([^"]+)"/)?.[1])
+    .filter(Boolean);
   note(
-    events.length === viewButtons,
-    `every one of the ${viewButtons} viewer buttons carries an event name`,
-    `${events.length} events`
+    viewerEvents.length === viewerTags.length && viewerTags.length > 0,
+    `every one of the ${viewerTags.length} viewer buttons carries an event name`,
+    `${viewerEvents.length} have one`
   );
-  note(new Set(events).size === events.length, 'event names unique');
+  note(
+    new Set(viewerEvents).size === viewerEvents.length,
+    'viewer event names unique',
+    viewerEvents.filter((v, i) => viewerEvents.indexOf(v) !== i).join(', ')
+  );
 }
 
 console.log('');

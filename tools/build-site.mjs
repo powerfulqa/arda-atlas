@@ -31,36 +31,40 @@ async function imageInfo(absPath, relPath) {
   return { rel: relPath, w: meta.width, h: meta.height, bytes: stat.size };
 }
 
-/** Resolve the four files each map needs: two masters, two display derivatives. */
-async function resolveImages(continentId, map) {
+/**
+ * Resolve every rendition that actually exists for a map: its master plus the
+ * two display tiers. Renditions are discovered on disk rather than listed per
+ * map, so a new art pass rolls out one map at a time with no manifest edit.
+ * Returns them in the manifest's configured order, oldest first.
+ */
+async function resolveRenditions(continentId, map, renditionConfig) {
   const dir = path.join(MAPS_DIR, continentId, map.slug);
   const relBase = `maps/${continentId}/${map.slug}`;
-  const pick = async (file) => imageInfo(path.join(dir, file), `${relBase}/${file}`);
+  const entries = await fs.readdir(dir);
+  const out = [];
 
-  const [
-    masterOriginal,
-    masterRemaster,
-    displayOriginal,
-    displayRemaster,
-    narrowOriginal,
-    narrowRemaster,
-  ] = await Promise.all([
-    pick(map.original),
-    pick(map.remaster),
-    pick('display-original.webp'),
-    pick('display-remaster.webp'),
-    pick('display-original-700.webp'),
-    pick('display-remaster-700.webp'),
-  ]);
+  for (const cfg of renditionConfig) {
+    const masterFile = entries.find(
+      (f) => path.basename(f, path.extname(f)) === cfg.basename
+    );
+    if (!masterFile) continue; // rendition not produced for this map yet
 
-  return {
-    masterOriginal,
-    masterRemaster,
-    displayOriginal,
-    displayRemaster,
-    narrowOriginal,
-    narrowRemaster,
-  };
+    const large = `display-${cfg.basename}.webp`;
+    const narrow = `display-${cfg.basename}-700.webp`;
+    if (!entries.includes(large) || !entries.includes(narrow)) {
+      throw new Error(
+        `${relBase}: ${masterFile} has no display tier. Run: npm run derivatives`
+      );
+    }
+
+    const [master, display, narrowImg] = await Promise.all([
+      imageInfo(path.join(dir, masterFile), `${relBase}/${masterFile}`),
+      imageInfo(path.join(dir, large), `${relBase}/${large}`),
+      imageInfo(path.join(dir, narrow), `${relBase}/${narrow}`),
+    ]);
+    out.push({ ...cfg, master, display, narrow: narrowImg });
+  }
+  return out;
 }
 
 /**
@@ -89,41 +93,79 @@ function srcsetAttr(narrow, large) {
 
 // ---------------------------------------------------------------- templates
 
-function comparePane(map, img) {
-  // The base layer is the remaster and the overlay is the original, so the
-  // overlay grows from the left and lands under the "Original" label.
+function comparePane(map, rends) {
+  const base = rends.find((r) => r.role === 'base');
+  const versions = rends.filter((r) => r.role !== 'base');
+  // Newest art wins the slider by default; older passes stay one click away.
+  const active = versions[versions.length - 1];
+
+  const imgAttrs = (r, alt, cls) =>
+    `<img${cls ? ` class="${cls}"` : ''} src="${esc(r.display.rel)}"
+                   srcset="${esc(srcsetAttr(r.narrow, r.display))}"
+                   sizes="${esc(SLIDER_SIZES)}"
+                   alt="${esc(alt)}" width="${r.display.w}" height="${r.display.h}" loading="lazy" decoding="async"`;
+
+  // Everything the switcher needs to repoint the slider and the viewer button.
+  const versionButtons = versions
+    .map(
+      (r) => `              <button class="rend${r.id === active.id ? ' is-active' : ''}" type="button"
+                      data-rend="${esc(r.id)}"
+                      data-label="${esc(r.label)}"
+                      data-src="${esc(r.display.rel)}"
+                      data-srcset="${esc(srcsetAttr(r.narrow, r.display))}"
+                      data-w="${r.display.w}" data-h="${r.display.h}"
+                      data-ar="${(r.display.w / r.display.h).toFixed(3)}"
+                      data-master="${esc(r.master.rel)}"
+                      data-master-dims="${r.master.w}&#215;${r.master.h}"
+                      data-master-size="${kb(r.master.bytes)}"
+                      data-event="view-${esc(map.slug)}-${esc(r.id)}"
+                      aria-pressed="${r.id === active.id}">${esc(r.label)}</button>`
+    )
+    .join('\n');
+
+  const switcher =
+    versions.length > 1
+      ? `
+            <div class="rend-switch" role="group" aria-label="Choose which version of ${esc(
+              map.title
+            )} to compare">
+              <span class="rend-hint">Compare against</span>
+${versionButtons}
+            </div>`
+      : '';
+
   return `
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-${esc(map.slug)}">
-              <img class="img-base" src="${esc(img.displayRemaster.rel)}"
-                   srcset="${esc(srcsetAttr(img.narrowRemaster, img.displayRemaster))}"
-                   sizes="${esc(SLIDER_SIZES)}"
-                   alt="Remastered map of ${esc(map.title)}" width="${img.displayRemaster.w}" height="${img.displayRemaster.h}" loading="lazy" decoding="async">
+              ${imgAttrs(active, `${active.label} map of ${map.title}`, 'img-base')}>
               <div class="img-after">
-                <img src="${esc(img.displayOriginal.rel)}"
-                     srcset="${esc(srcsetAttr(img.narrowOriginal, img.displayOriginal))}"
-                     sizes="${esc(SLIDER_SIZES)}"
-                     alt="Original hand-drawn ${esc(map.title)} map scan" width="${img.displayOriginal.w}" height="${img.displayOriginal.h}" loading="lazy" decoding="async">
+                ${imgAttrs(base, `Original hand-drawn ${map.title} map scan`)}>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>
                 </div>
               </div>
-              <span class="compare-label orig">Original</span>
-              <span class="compare-label remas">Remastered</span>
-            </div>
+              <span class="compare-label orig">${esc(base.label)}</span>
+              <span class="compare-label remas" data-active-label>${esc(active.label)}</span>
+            </div>${switcher}
             <div class="actions">
-              <button class="btn primary" type="button" data-view="${esc(img.masterRemaster.rel)}" data-alt="Remastered map of ${esc(
-    map.title
-  )}" data-dims="${img.masterRemaster.w}&#215;${img.masterRemaster.h}" data-size="${kb(
-    img.masterRemaster.bytes
-  )}" data-event="view-${esc(map.slug)}-remaster">Open remaster</button>
-              <button class="btn" type="button" data-view="${esc(img.masterOriginal.rel)}" data-alt="Original hand-drawn ${esc(
-    map.title
-  )} map scan" data-dims="${img.masterOriginal.w}&#215;${img.masterOriginal.h}" data-size="${kb(
-    img.masterOriginal.bytes
-  )}" data-event="view-${esc(map.slug)}-original">Open original</button>
+              <button class="btn primary" type="button" data-view="${esc(
+                active.master.rel
+              )}" data-alt="${esc(active.label)} map of ${esc(map.title)}" data-dims="${
+    active.master.w
+  }&#215;${active.master.h}" data-size="${kb(active.master.bytes)}" data-event="view-${esc(
+    map.slug
+  )}-${esc(active.id)}" data-open-active><span data-active-noun>Open ${esc(
+    active.label.toLowerCase()
+  )}</span></button>
+              <button class="btn" type="button" data-view="${esc(
+                base.master.rel
+              )}" data-alt="Original hand-drawn ${esc(map.title)} map scan" data-dims="${
+    base.master.w
+  }&#215;${base.master.h}" data-size="${kb(base.master.bytes)}" data-event="view-${esc(
+    map.slug
+  )}-${esc(base.id)}">Open original</button>
             </div>
           </div>`;
 }
@@ -136,8 +178,9 @@ function factRow(label, value) {
   }</div>`;
 }
 
-function mapArticle(map, img) {
-  const ar = (img.displayRemaster.w / img.displayRemaster.h).toFixed(3);
+function mapArticle(map, rends) {
+  const active = rends.filter((r) => r.role !== 'base').at(-1);
+  const ar = (active.display.w / active.display.h).toFixed(3);
   const pageNo = String(map.page).padStart(3, '0');
   const tagAttr = map.tags.join('|');
 
@@ -151,7 +194,7 @@ function mapArticle(map, img) {
 
   return `
         <!-- ${map.title.toUpperCase()} -->
-        <article class="atlas-page" id="${esc(map.slug)}" style="--ar:${ar}" data-tags="${esc(tagAttr)}" data-title="${esc(map.title)}">${comparePane(map, img)}
+        <article class="atlas-page" id="${esc(map.slug)}" style="--ar:${ar}" data-tags="${esc(tagAttr)}" data-title="${esc(map.title)}">${comparePane(map, rends)}
           <div class="page-meta">
             <div class="page-no"><a href="#${esc(map.slug)}">Page ${pageNo} - ${esc(map.title)}</a></div>
             <div>
@@ -307,6 +350,12 @@ const STYLES = `
     .compare-label{position:absolute;bottom:var(--space-3);padding:.25rem .6rem;border-radius:999px;font-size:var(--text-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;pointer-events:none;z-index:6}
     .compare-label.orig{left:var(--space-3);background:rgba(30,20,10,.72);color:#fff}
     .compare-label.remas{right:var(--space-3);background:rgba(194,145,88,.85);color:#fff}
+    /* Rendition switcher - only rendered when a map has more than one art pass */
+    .rend-switch{display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center}
+    .rend-hint{font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-muted)}
+    .rend{min-height:36px;padding:0 .8rem;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface-2);color:inherit;cursor:pointer;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em}
+    .rend:hover{border-color:var(--color-primary)}
+    .rend.is-active{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
     .page-meta{display:grid;gap:var(--space-4);align-content:start}
     .page-no{font-size:var(--text-xs);letter-spacing:.22em;text-transform:uppercase;color:var(--color-text-muted)}
     .page-no a{text-decoration:none}
@@ -394,6 +443,58 @@ const SCRIPT = String.raw`
         wrap.addEventListener('touchcancel', () => { dragging = false; });
       }
       document.querySelectorAll('.compare-wrap').forEach(initCompare);
+
+      /* ---------- rendition switcher ----------
+         Repoints the slider's base layer at a different art pass. The overlay
+         (the original scan) never changes, so the comparison is always against
+         the author's drawing. Only the selected rendition is ever fetched, so
+         extra art passes cost page weight only when someone asks for one. */
+      document.querySelectorAll('.rend-switch').forEach(group => {
+        const page    = group.closest('.atlas-page');
+        const wrap    = page.querySelector('.compare-wrap');
+        const baseImg = wrap.querySelector('img.img-base');
+        const label   = wrap.querySelector('[data-active-label]');
+        const openBtn = page.querySelector('[data-open-active]');
+        const noun    = openBtn?.querySelector('[data-active-noun]');
+        const buttons = [...group.querySelectorAll('.rend')];
+
+        buttons.forEach(btn => btn.addEventListener('click', () => {
+          if (btn.classList.contains('is-active')) return;
+          const d = btn.dataset;
+
+          buttons.forEach(b => {
+            const on = b === btn;
+            b.classList.toggle('is-active', on);
+            b.setAttribute('aria-pressed', String(on));
+          });
+
+          /* Set srcset before src so the browser resolves the candidate list
+             once, rather than fetching src and then re-picking. */
+          baseImg.srcset = d.srcset;
+          baseImg.src    = d.src;
+          baseImg.width  = d.w;
+          baseImg.height = d.h;
+          baseImg.alt    = d.label + ' map of ' + (page.dataset.title || '');
+          page.style.setProperty('--ar', d.ar);
+          if (label) label.textContent = d.label;
+
+          if (openBtn) {
+            openBtn.dataset.view  = d.master;
+            openBtn.dataset.alt   = d.label + ' map of ' + (page.dataset.title || '');
+            openBtn.dataset.dims  = d.masterDims;
+            openBtn.dataset.size  = d.masterSize;
+            openBtn.dataset.event = d.event;
+            /* One text node, not "Open " + span: .btn is inline-flex, and a
+               whitespace-only text node between flex items is dropped, which
+               rendered as "Openretouched". */
+            if (noun) noun.textContent = 'Open ' + d.label.toLowerCase();
+          }
+
+          /* The overlay width is derived from the wrap, which the new aspect
+             ratio may have resized. */
+          window.dispatchEvent(new Event('resize'));
+        }));
+      });
 
       /* ---------- full-resolution viewer ---------- */
       const viewer   = document.getElementById('viewer');
@@ -566,7 +667,15 @@ async function render(manifest) {
   // Resolve every image up front so dimensions come from the files.
   for (const continent of continents) {
     for (const map of continent.maps) {
-      map._img = await resolveImages(continent.id, map);
+      map._rends = await resolveRenditions(continent.id, map, manifest.renditions);
+      const versions = map._rends.filter((r) => r.role !== 'base');
+      if (!map._rends.some((r) => r.role === 'base') || !versions.length) {
+        throw new Error(
+          `${map.slug}: needs the base scan plus at least one rendition, found ` +
+            `[${map._rends.map((r) => r.id).join(', ') || 'nothing'}]`
+        );
+      }
+      map._active = versions.at(-1);
     }
   }
 
@@ -602,7 +711,7 @@ async function render(manifest) {
         </header>
 ${continentIndex(c)}
         <div class="atlas-shelf">
-${c.maps.map((m) => mapArticle(m, m._img)).join('\n')}
+${c.maps.map((m) => mapArticle(m, m._rends)).join('\n')}
         </div>
       </article>`
     )
@@ -672,11 +781,13 @@ ${introCards
           </div>
         </div>
         <div class="hero-aside">
-          <img src="${esc(hero._img.displayRemaster.rel)}" srcset="${esc(
-    srcsetAttr(hero._img.narrowRemaster, hero._img.displayRemaster)
-  )}" sizes="${esc(HERO_SIZES)}" alt="Remastered map of ${esc(hero.title)}" width="${
-    hero._img.displayRemaster.w
-  }" height="${hero._img.displayRemaster.h}" loading="eager" fetchpriority="high">
+          <img src="${esc(hero._active.display.rel)}" srcset="${esc(
+    srcsetAttr(hero._active.narrow, hero._active.display)
+  )}" sizes="${esc(HERO_SIZES)}" alt="${esc(hero._active.label)} map of ${esc(
+    hero.title
+  )}" width="${hero._active.display.w}" height="${
+    hero._active.display.h
+  }" loading="eager" fetchpriority="high">
         </div>
       </div>
     </section>
@@ -762,17 +873,23 @@ async function main() {
   const mapCount = manifest.continents.reduce((n, c) => n + c.maps.length, 0);
   let display = 0;
   let masters = 0;
+  const perRendition = {};
   for (const c of manifest.continents) {
     for (const m of c.maps) {
-      display += m._img.displayOriginal.bytes + m._img.displayRemaster.bytes;
-      masters += m._img.masterOriginal.bytes + m._img.masterRemaster.bytes;
+      for (const r of m._rends) {
+        perRendition[r.id] = (perRendition[r.id] ?? 0) + 1;
+        masters += r.master.bytes;
+      }
+      // Only the base scan and the active rendition load on a page view.
+      display += m._rends.find((r) => r.role === 'base').display.bytes + m._active.display.bytes;
     }
   }
 
   console.log(`wrote index.html  (${(html.length / 1024).toFixed(1)} KB, ${html.split('\n').length} lines)`);
   console.log(`  continents: ${manifest.continents.length}   maps: ${mapCount}`);
-  console.log(`  full-scroll image weight (display tier): ${mb(display)}`);
-  console.log(`  masters held for the viewer only:        ${mb(masters)}`);
+  console.log(`  renditions found: ${Object.entries(perRendition).map(([k, v]) => `${k} x${v}`).join(', ')}`);
+  console.log(`  full-scroll image weight (large tier, active rendition only): ${mb(display)}`);
+  console.log(`  all masters held for the viewer only:                        ${mb(masters)}`);
 }
 
 main().catch((err) => {

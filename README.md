@@ -51,8 +51,9 @@ Requires Node 18+ (developed on 24). The only dependency is `sharp`, for image p
 
 ## Adding a new map
 
-1. Create `maps/continent-<n>/<location-slug>/` and drop in the two masters:
-   `original.<ext>` and `remaster.png`.
+1. Create `maps/continent-<n>/<location-slug>/` and drop in the masters: the scan as
+   `original.<ext>`, plus at least one art pass (`remaster.png`, `retouched.png`, ...).
+   See [Art passes](#art-passes-renditions).
 2. Add an entry to the continent's `maps` array in `data/maps.json`:
 
 ```json
@@ -69,9 +70,7 @@ Requires Node 18+ (developed on 24). The only dependency is `sharp`, for image p
   "tags": ["Village", "Forest"],
   "onMap": "What is visibly drawn on the map.",
   "lore": null,
-  "lorePending": true,
-  "original": "original.jpg",
-  "remaster": "remaster.png"
+  "lorePending": true
 }
 ```
 
@@ -107,7 +106,7 @@ Three tiers, which is what keeps the site inside GitHub's limits:
 |---|---|---|---|
 | Narrow | `display-*-700.webp` | 1x displays, via `srcset` | ~75-285 KB |
 | Large | `display-*.webp` | 2x and 3x displays, via `srcset` | ~180-520 KB |
-| Master | `original.*`, `remaster.png` | the full-resolution viewer only, on click | 2-4 MB |
+| Master | `original.*`, `remaster.png`, `retouched.png` | the full-resolution viewer only, on click | 2-4 MB |
 
 The masters are never fetched on page load. Measured full-scroll transfer:
 
@@ -161,6 +160,72 @@ site so the viewer can reach them, so the site grows about 5.8 MB per map. **Git
 caps a published site at 1 GB**, which lands somewhere around 170 maps. When that
 approaches, move the masters out of the published tree - GitHub Releases or a separate
 archive repo - and point the `data-view` URLs at their new home.
+
+## Art passes (renditions)
+
+A map can carry several versions of the art. They are **discovered on disk**, not listed per
+map, so a new pass rolls out one map at a time with no JSON to edit.
+
+Configured once, oldest first, in `data/maps.json`:
+
+```json
+"renditions": [
+  { "id": "original",  "label": "Original",  "basename": "original", "role": "base" },
+  { "id": "remaster",  "label": "Remaster",  "basename": "remaster" },
+  { "id": "retouched", "label": "Retouched", "basename": "retouched" }
+]
+```
+
+The build looks for `<basename>.*` in each map directory and includes whatever it finds.
+
+- The `role: "base"` rendition is the author's scan. It is always the **left** side of the
+  compare slider and is never swapped.
+- The slider defaults to the **newest** rendition present for that map.
+- A map with two or more art passes gets a "Compare against" switcher. A map with one does
+  not, so partial rollouts look deliberate rather than broken.
+- **Only the selected rendition is fetched.** Older passes load on demand, so keeping the
+  full history costs no page weight - measured: switching to the older pass fetched
+  224 KB at that moment and nothing before.
+
+### Adding a new art pass
+
+1. Drop `retouched.png` into the map directory. **Keep the scan's aspect ratio.**
+2. `npm run all`
+
+That is the whole process. Do it for one map or all of them; the site copes with any mix.
+
+### Aspect ratio is load-bearing
+
+`--ar` comes from the selected rendition and is applied to **both** images via
+`object-fit: cover`, so a rendition shaped differently from the scan crops the scan.
+Current drift is 0.01-0.22%. `npm run verify` **fails the build** if any rendition is more
+than 2% off its scan, so this cannot slip through unnoticed. If a future pass genuinely
+needs a different shape, the slider needs decoupling first - ask.
+
+### Two traps when replacing or reformatting files
+
+Both are confirmed by test, and both fail *silently*:
+
+- **Timestamps.** Derivatives regenerate only when the master is newer. `cp -p`, a restored
+  archive and most sync tools preserve mtimes, so the new art gets committed while the site
+  keeps serving the old one. After any bulk swap, finish with `npm run all -- --force`.
+- **Mixed extensions.** Masters are matched by basename, and the first hit wins
+  alphabetically. Leaving `remaster.png` next to a new `remaster.webp` silently keeps the
+  `.png`. Delete the old file when changing format.
+
+### Cost
+
+Each extra rendition adds roughly 3.5 MB per map to the **published site** (the master, plus
+its two display tiers). That brings forward the 1 GB Pages ceiling:
+
+| Renditions per map | Published per map | Maps before the 1 GB limit |
+|---|---|---|
+| 2 (scan + remaster) | 6.9 MB | ~149 |
+| 3 (plus retouched) | 11.1 MB | ~92 |
+
+Note that **replacing** a master rather than adding one saves nothing in the repository -
+git keeps the old blob forever either way. The only thing replacing saves is published-site
+space, at the cost of losing the version history from the site.
 
 ## Analytics
 
