@@ -1,10 +1,30 @@
 <!doctype html>
+<!--
+  GENERATED FILE - DO NOT EDIT BY HAND.
+  Content lives in data/maps.json. Rebuild with:  npm run all
+  Editing this file directly means your changes are lost on the next build.
+-->
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Atlas of Arda</title>
   <meta name="description" content="A book-style atlas of hand-drawn and remastered fantasy maps from the world of Arda.">
+  <link rel="canonical" href="https://powerfulqa.github.io/arda-atlas/">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Atlas of Arda">
+  <meta property="og:title" content="Atlas of Arda - Every map from Arda, original and remastered, side by side.">
+  <meta property="og:description" content="A book-style atlas of hand-drawn and remastered fantasy maps from the world of Arda.">
+  <meta property="og:url" content="https://powerfulqa.github.io/arda-atlas/">
+  <meta property="og:image" content="https://powerfulqa.github.io/arda-atlas/assets/social-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A remastered map from the world of Arda">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Atlas of Arda">
+  <meta name="twitter:description" content="A book-style atlas of hand-drawn and remastered fantasy maps from the world of Arda.">
+  <meta name="twitter:image" content="https://powerfulqa.github.io/arda-atlas/assets/social-card.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,7 +32,7 @@
     :root,[data-theme="light"]{--text-xs:clamp(.75rem,.7rem + .25vw,.875rem);--text-sm:clamp(.875rem,.8rem + .35vw,1rem);--text-base:clamp(1rem,.95rem + .25vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);--text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);--text-2xl:clamp(2rem,1.2rem + 2.5vw,3.5rem);--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;--space-16:4rem;--radius-sm:.375rem;--radius-md:.75rem;--radius-lg:1rem;--radius-xl:1.5rem;--color-bg:#efe5d2;--color-surface:#f8f1e4;--color-surface-2:#f3ead9;--color-border:#c9b89d;--color-text:#302417;--color-text-muted:#6e5f4c;--color-primary:#7b4c1f;--color-primary-hover:#5d3916;--shadow-sm:0 8px 24px rgba(62,41,18,.10);--shadow-lg:0 25px 70px rgba(62,41,18,.18);--font-display:'Cormorant Garamond', Georgia, serif;--font-body:'Inter', Arial, sans-serif}
     [data-theme="dark"]{--color-bg:#15110d;--color-surface:#211a14;--color-surface-2:#2a2119;--color-border:#4b3b2e;--color-text:#f0e4cf;--color-text-muted:#baa98f;--color-primary:#c29158;--color-primary-hover:#ddb37f;--shadow-sm:0 8px 24px rgba(0,0,0,.25);--shadow-lg:0 25px 70px rgba(0,0,0,.4)}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,rgba(194,145,88,.10),transparent 30%),var(--color-bg);color:var(--color-text);font:400 var(--text-base)/1.65 var(--font-body)}img{display:block;max-width:100%;height:auto}a{color:inherit}button{font:inherit}
-    .skip{position:absolute;left:-9999px}.skip:focus{left:1rem;top:1rem;background:var(--color-surface);padding:.75rem 1rem;border-radius:.5rem}
+    .skip{position:absolute;left:-9999px}.skip:focus{left:1rem;top:1rem;background:var(--color-surface);padding:.75rem 1rem;border-radius:.5rem;z-index:100}
     .wrap{max-width:1320px;margin:0 auto;padding:0 var(--space-4)}
     /* Scoped to the site header only. A bare `header` selector would also catch
        the <header> inside each .continent block and make it a second sticky bar. */
@@ -42,6 +62,7 @@
     .sunder{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:var(--space-8);align-items:center;padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm)}
     .sunder blockquote{margin:var(--space-4) 0 0;padding-left:var(--space-4);border-left:3px solid var(--color-primary);font:600 var(--text-lg)/1.35 var(--font-display);color:var(--color-text)}
     .sunder blockquote cite{display:block;margin-top:var(--space-2);font:400 var(--text-sm)/1.5 var(--font-body);font-style:normal;color:var(--color-text-muted)}
+    .muted{color:var(--color-text-muted)}
     .continent-list{display:grid;gap:var(--space-2);margin:0;padding:0;list-style:none}
     .continent-list li{display:flex;align-items:center;gap:var(--space-3);padding:.55rem .75rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface-2);font-size:var(--text-sm)}
     .continent-list .num{flex:0 0 2.1rem;height:2.1rem;display:grid;place-items:center;border-radius:999px;border:1px solid var(--color-border);font:600 var(--text-xs)/1 var(--font-body);letter-spacing:.04em;color:var(--color-text-muted)}
@@ -56,89 +77,47 @@
     .continent-head p{margin:0;max-width:70ch;color:var(--color-text-muted)}
     .continent-head .eyebrow{justify-self:start}
     .pending{font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:999px;padding:.2rem .6rem;display:inline-block}
-    .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+    /* Index + tag filters */
+    .atlas-index{display:grid;gap:var(--space-4);padding:var(--space-5) var(--space-6);background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
+    .index-head{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:space-between;align-items:baseline}
+    .index-note{margin:0;color:var(--color-text-muted);font-size:var(--text-sm)}
+    .index-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-2)}
+    .index-list a{display:grid;grid-template-columns:2.6rem 1fr;gap:.2rem var(--space-3);align-items:baseline;padding:.5rem .7rem;border:1px solid transparent;border-radius:var(--radius-md);text-decoration:none}
+    .index-list a:hover,.index-list a:focus-visible{border-color:var(--color-border);background:var(--color-surface-2)}
+    .ix-no{font-size:var(--text-xs);letter-spacing:.12em;color:var(--color-text-muted)}
+    .ix-name{font-weight:600}
+    .ix-type{grid-column:2;font-size:var(--text-xs);color:var(--color-text-muted)}
+    .index-list a[data-dimmed]{opacity:.32}
+    .filters{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+    .chip{min-height:36px;padding:0 .8rem;display:inline-flex;align-items:center;gap:.4rem;border-radius:999px;border:1px solid var(--color-border);background:var(--color-surface-2);color:inherit;cursor:pointer;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em}
+    .chip:hover{border-color:var(--color-primary)}
+    .chip.is-active{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
+    .chip-n{opacity:.65;font-variant-numeric:tabular-nums}
+    .filter-empty{margin:0;color:var(--color-text-muted)}
+    .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;--ar:1.333}
     .atlas-page::before{content:"";position:absolute;top:0;bottom:0;left:calc(58% - 12px);width:24px;background:linear-gradient(90deg,rgba(0,0,0,.09),rgba(255,255,255,.06) 35%,rgba(0,0,0,.10));opacity:.22;pointer-events:none}
     /* align-content:start stops the auto rows from stretching when the facing
        meta column is taller than the map - otherwise .compare-wrap grows past
        the image and the Original/Remastered labels float in dead space. */
     .page-visual{display:grid;gap:var(--space-4);align-content:start}
-    /* Each atlas page sets --ar to its own map's width/height ratio, so portrait
-       and landscape maps both display whole instead of being cropped to 4:3.
-       The vh cap stops tall portrait maps from running off the screen. */
-    .atlas-page{--ar:1.333}
-    .compare-wrap{
-      position:relative;
-      border-radius:var(--radius-lg);
-      overflow:hidden;
-      border:1px solid var(--color-border);
-      background:var(--color-surface-2);
-      touch-action:pan-y;
-      user-select:none;
-      -webkit-user-select:none;
-      max-width:min(100%, calc(96vh * var(--ar)));
-      margin-inline:auto;
-      width:100%;
-    }
-    .compare-wrap > img.img-base{
-      display:block;
-      width:100%;
-      aspect-ratio:var(--ar);
-      object-fit:cover;
-      pointer-events:none;
-    }
-    .img-after{
-      position:absolute;
-      top:0; left:0; bottom:0;
-      width:50%;
-      overflow:hidden;
-    }
-    .img-after img{
-      display:block;
-      width:var(--cmp-w,100%);
-      aspect-ratio:var(--ar);
-      object-fit:cover;
-      max-width:none;
-      pointer-events:none;
-    }
-    .compare-divider{
-      position:absolute;
-      top:0; bottom:0;
-      left:50%;
-      width:3px;
-      background:rgba(255,255,255,.88);
-      transform:translateX(-50%);
-      cursor:ew-resize;
-      z-index:5;
-      box-shadow:0 0 8px rgba(0,0,0,.45);
-    }
-    .compare-handle{
-      position:absolute;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      width:44px; height:44px;
-      border-radius:999px;
-      background:rgba(255,255,255,.92);
-      border:2px solid var(--color-border);
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:var(--shadow-sm);
-      cursor:ew-resize;
-    }
-    .compare-label{
-      position:absolute;
-      bottom:var(--space-3);
-      padding:.25rem .6rem;
-      border-radius:999px;
-      font-size:var(--text-xs);
-      font-weight:600;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      pointer-events:none;
-      z-index:6;
-    }
+    /* --ar is written per page by the build from the image's real pixel ratio,
+       so portrait and landscape maps both display whole. The vh cap stops tall
+       portrait maps from running off the screen. */
+    .compare-wrap{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border);background:var(--color-surface-2);touch-action:pan-y;user-select:none;-webkit-user-select:none;width:100%;max-width:min(100%, calc(96vh * var(--ar)));margin-inline:auto}
+    .compare-wrap > img.img-base{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;pointer-events:none}
+    .img-after{position:absolute;top:0;left:0;bottom:0;width:50%;overflow:hidden}
+    .img-after img{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;max-width:none;pointer-events:none}
+    .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:3px;background:rgba(255,255,255,.88);transform:translateX(-50%);cursor:ew-resize;z-index:5;box-shadow:0 0 8px rgba(0,0,0,.45)}
+    .compare-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);border:2px solid var(--color-border);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);cursor:ew-resize;color:#2b2118}
+    .compare-label{position:absolute;bottom:var(--space-3);padding:.25rem .6rem;border-radius:999px;font-size:var(--text-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;pointer-events:none;z-index:6}
     .compare-label.orig{left:var(--space-3);background:rgba(30,20,10,.72);color:#fff}
     .compare-label.remas{right:var(--space-3);background:rgba(194,145,88,.85);color:#fff}
     .page-meta{display:grid;gap:var(--space-4);align-content:start}
     .page-no{font-size:var(--text-xs);letter-spacing:.22em;text-transform:uppercase;color:var(--color-text-muted)}
+    .page-no a{text-decoration:none}
+    .page-no a:hover,.page-no a:focus-visible{color:var(--color-primary);text-decoration:underline}
+    .page-summary{margin:.5rem 0 0;color:var(--color-text-muted)}
+    .page-prose{color:var(--color-text-muted)}
     .location{display:grid;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
     .label{font-size:var(--text-xs);letter-spacing:.18em;text-transform:uppercase;color:var(--color-text-muted)}
     .tags,.actions{display:flex;flex-wrap:wrap;gap:var(--space-2)}
@@ -149,13 +128,22 @@
     .notes{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)}
     .note{padding:var(--space-4);border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface)}
     footer{padding:var(--space-10) 0 var(--space-12);color:var(--color-text-muted)}
-    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.84);display:none;align-items:center;justify-content:center;padding:var(--space-4);z-index:60}
-    .lightbox.open{display:flex}
-    .lightbox-inner{max-width:min(1280px,100%);max-height:100%;position:relative}
-    .lightbox img{max-height:84vh;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg)}
-    .lightbox button{position:absolute;top:-.75rem;right:0;min-width:44px;min-height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(20,20,20,.86);color:#fff;cursor:pointer}
+    /* Full-resolution viewer */
+    .viewer{position:fixed;inset:0;background:rgba(8,6,4,.94);display:none;z-index:60;touch-action:none}
+    .viewer.open{display:block}
+    .viewer-stage{position:absolute;inset:0;overflow:hidden;cursor:grab}
+    .viewer-stage.is-panning{cursor:grabbing}
+    .viewer-stage img{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform;max-width:none;image-rendering:auto}
+    .viewer-bar{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);background:linear-gradient(0deg,rgba(8,6,4,.92),transparent);color:#f0e4cf;font-size:var(--text-xs)}
+    .viewer-meta{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;letter-spacing:.06em;text-transform:uppercase}
+    .viewer-actions{display:flex;gap:var(--space-2);align-items:center}
+    .viewer-btn{min-height:40px;min-width:40px;padding:0 .8rem;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(24,18,12,.85);color:#f0e4cf;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:.4rem}
+    .viewer-btn:hover{border-color:var(--color-primary);color:#fff}
+    .viewer-close{position:absolute;top:var(--space-4);right:var(--space-4);z-index:2}
+    .viewer-hint{position:absolute;top:var(--space-4);left:var(--space-4);padding:.4rem .7rem;border-radius:999px;background:rgba(24,18,12,.8);color:#baa98f;font-size:var(--text-xs);letter-spacing:.06em}
     @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}}
-    @media(max-width:700px){.section-top{display:grid}.nav{align-items:flex-start;flex-direction:column}.nav-links{width:100%}}
+    @media(max-width:700px){.section-top{display:grid}.nav{align-items:flex-start;flex-direction:column}.nav-links{width:100%}.notes{grid-template-columns:1fr}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body>
@@ -189,7 +177,7 @@
           </div>
         </div>
         <div class="hero-aside">
-          <img src="maps/continent-1/dragonfall/remaster.png" alt="Remastered map of Dragonfall, an iron-mining city built around a dragon skeleton" width="1477" height="1065" loading="lazy">
+          <img src="maps/continent-1/dragonfall/display-remaster.webp" alt="Remastered map of Dragonfall" width="1400" height="1009" loading="eager" fetchpriority="high">
         </div>
       </div>
     </section>
@@ -206,7 +194,7 @@
             Arda was originally a massive pangaea, but after a night of disaster when the world was still young, current-day Arda is now broken up into seven geographically distinct continents.
             <cite>The author, on the shape of the world</cite>
           </blockquote>
-          <p style="color:var(--color-text-muted)">Every map in this archive belongs to one of those seven landmasses. The atlas is grouped the same way, so each continent keeps its own run of pages as it is scanned and remastered. Six of the seven are still to be charted here.</p>
+          <p class="muted">Every map in this archive belongs to one of those seven landmasses. The atlas is grouped the same way, so each continent keeps its own run of pages as it is scanned and remastered. Six of the seven are still to be charted here.</p>
         </div>
         <div>
           <div class="label" style="margin-bottom:var(--space-3)">The seven continents</div>
@@ -235,17 +223,79 @@
           <h3>Continent One</h3>
           <p>The main continent of Arda: home of the humans, and seat of power of the current ruling King. Its royal capital sits in Stormwind District, at the end of a paved processional causeway. <span class="pending">Continent name awaiting the author</span></p>
         </header>
+
+        <div class="atlas-index" data-index-scope="continent-1">
+          <div class="index-head">
+            <div class="label">Index - Continent One</div>
+            <p class="index-note">9 maps charted. Jump to a page, or filter by tag.</p>
+          </div>
+          <ol class="index-list">
+            <li><a href="#dragonfall" data-index-for="dragonfall">
+              <span class="ix-no">001</span>
+              <span class="ix-name">Dragonfall</span>
+              <span class="ix-type">Mining city - Iron</span>
+            </a></li>
+            <li><a href="#dimrock" data-index-for="dimrock">
+              <span class="ix-no">002</span>
+              <span class="ix-name">Dimrock</span>
+              <span class="ix-type">Village - highland</span>
+            </a></li>
+            <li><a href="#dragonfall-district" data-index-for="dragonfall-district">
+              <span class="ix-no">003</span>
+              <span class="ix-name">Dragonfall District</span>
+              <span class="ix-type">District - agricultural</span>
+            </a></li>
+            <li><a href="#goregrond-district" data-index-for="goregrond-district">
+              <span class="ix-no">004</span>
+              <span class="ix-name">Goregrond District</span>
+              <span class="ix-type">District - frontier</span>
+            </a></li>
+            <li><a href="#helmsvard-district" data-index-for="helmsvard-district">
+              <span class="ix-no">005</span>
+              <span class="ix-name">Helmsvard District</span>
+              <span class="ix-type">District - maritime</span>
+            </a></li>
+            <li><a href="#stormwind-district" data-index-for="stormwind-district">
+              <span class="ix-no">006</span>
+              <span class="ix-name">Stormwind District</span>
+              <span class="ix-type">Capital district</span>
+            </a></li>
+            <li><a href="#truessant-district" data-index-for="truessant-district">
+              <span class="ix-no">007</span>
+              <span class="ix-name">Truessant District</span>
+              <span class="ix-type">District - tropical</span>
+            </a></li>
+            <li><a href="#waveswater" data-index-for="waveswater">
+              <span class="ix-no">008</span>
+              <span class="ix-name">Waveswater</span>
+              <span class="ix-type">Lakeland - mixed settlement</span>
+            </a></li>
+            <li><a href="#west-haven-district" data-index-for="west-haven-district">
+              <span class="ix-no">009</span>
+              <span class="ix-name">West Haven District</span>
+              <span class="ix-type">District - agricultural</span>
+            </a></li>
+          </ol>
+          <div class="filters" role="group" aria-label="Filter maps by tag">
+            <button class="chip is-active" type="button" data-filter="all">All <span class="chip-n">9</span></button>
+            <button class="chip" type="button" data-filter="District">District <span class="chip-n">5</span></button>
+            <button class="chip" type="button" data-filter="Causeway">Causeway <span class="chip-n">2</span></button>
+            <button class="chip" type="button" data-filter="Farmland">Farmland <span class="chip-n">2</span></button>
+          </div>
+          <p class="index-note">Chips cover tags shared by more than one map. A further 37 tags appear on a single map each - find those through the index above.</p>
+          <p class="filter-empty" hidden>No maps match that tag.</p>
+        </div>
         <div class="atlas-shelf">
 
         <!-- DRAGONFALL -->
-        <article class="atlas-page" id="dragonfall" style="--ar:1.387">
+        <article class="atlas-page" id="dragonfall" style="--ar:1.388" data-tags="City|Mining|Dragon remains|Fortified|Mountains" data-title="Dragonfall">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall">
-              <img class="img-base" src="maps/continent-1/dragonfall/remaster.png"
-                   alt="Remastered Dragonfall map" width="1477" height="1065">
+              <img class="img-base" src="maps/continent-1/dragonfall/display-remaster.webp"
+                   alt="Remastered map of Dragonfall" width="1400" height="1009" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/dragonfall/original.webp"
-                     alt="Original hand-drawn Dragonfall map scan" width="1280" height="923">
+                <img src="maps/continent-1/dragonfall/display-original.webp"
+                     alt="Original hand-drawn Dragonfall map scan" width="1280" height="923" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -256,15 +306,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dragonfall/remaster.png" data-alt="Remastered Dragonfall map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/dragonfall/original.webp" data-alt="Original Dragonfall scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/dragonfall/remaster.png" data-alt="Remastered map of Dragonfall" data-dims="1477&#215;1065" data-size="3388 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/dragonfall/original.webp" data-alt="Original hand-drawn Dragonfall map scan" data-dims="1280&#215;923" data-size="191 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 001 - Dragonfall</div>
+            <div class="page-no"><a href="#dragonfall">Page 001 - Dragonfall</a></div>
             <div>
               <h3>Dragonfall</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">An iron-mining city built around one of the last intact dragon skeletons in Arda.</p>
+              <p class="page-summary">An iron-mining city built around one of the last intact dragon skeletons in Arda.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known settlement</strong></div>
@@ -280,19 +330,19 @@
               <span class="tag">Fortified</span>
               <span class="tag">Mountains</span>
             </div>
-            <p style="color:var(--color-text-muted)">The city grew up around the bones of the last great dragon. The fortress walls were built from the stone of the mountain the dragon fell into. Iron veins run deep beneath.</p>
+            <p class="page-prose">The city grew up around the bones of the last great dragon. The fortress walls were built from the stone of the mountain the dragon fell into. Iron veins run deep beneath.</p>
           </div>
         </article>
 
         <!-- DIMROCK -->
-        <article class="atlas-page" id="dimrock" style="--ar:0.849">
+        <article class="atlas-page" id="dimrock" style="--ar:0.849" data-tags="Village|Valley|Ruins|Mine|Forest|River" data-title="Dimrock">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dimrock">
-              <img class="img-base" src="maps/continent-1/dimrock/remaster.png"
-                   alt="Remastered map of Dimrock, a village in an enclosed mountain valley" width="1156" height="1361" loading="lazy">
+              <img class="img-base" src="maps/continent-1/dimrock/display-remaster.webp"
+                   alt="Remastered map of Dimrock" width="1156" height="1361" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/dimrock/original.jpg"
-                     alt="Original hand-drawn Dimrock map scan" width="2765" height="3255" loading="lazy">
+                <img src="maps/continent-1/dimrock/display-original.webp"
+                     alt="Original hand-drawn Dimrock map scan" width="1189" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -303,15 +353,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dimrock/remaster.png" data-alt="Remastered Dimrock map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/dimrock/original.jpg" data-alt="Original Dimrock scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/dimrock/remaster.png" data-alt="Remastered map of Dimrock" data-dims="1156&#215;1361" data-size="3422 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/dimrock/original.jpg" data-alt="Original hand-drawn Dimrock map scan" data-dims="2765&#215;3255" data-size="1721 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 002 - Dimrock</div>
+            <div class="page-no"><a href="#dimrock">Page 002 - Dimrock</a></div>
             <div>
               <h3>Dimrock</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A timber village on a green shelf deep inside a walled valley of grey rock, reached by a single bridge over the river.</p>
+              <p class="page-summary">A timber village on a green shelf deep inside a walled valley of grey rock, reached by a single bridge over the river.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known settlement</strong></div>
@@ -328,20 +378,20 @@
               <span class="tag">Forest</span>
               <span class="tag">River</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> roughly twenty timber cabins and a longhouse sit on grassland ringed by sheer cliffs. A broken stone tower and a roofless abbey stand at the northern end. A plank bridge crosses the river to dense conifer forest on the west bank; a mine adit opens high in the northern rock face at the top of a switchback path, with a second cave mouth in the eastern cliff. Crop plots and a barn close off the southern end above the coast.</p>
+            <p class="page-prose"><strong>On the map:</strong> roughly twenty timber cabins and a longhouse sit on grassland ringed by sheer cliffs. A broken stone tower and a roofless abbey stand at the northern end. A plank bridge crosses the river to dense conifer forest on the west bank; a mine adit opens high in the northern rock face at the top of a switchback path, with a second cave mouth in the eastern cliff. Crop plots and a barn close off the southern end above the coast.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- DRAGONFALL DISTRICT -->
-        <article class="atlas-page" id="dragonfall-district" style="--ar:0.700">
+        <article class="atlas-page" id="dragonfall-district" style="--ar:0.700" data-tags="District|Farmland|Castle|Standing stones|Windmill" data-title="Dragonfall District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall-district">
-              <img class="img-base" src="maps/continent-1/dragonfall-district/remaster.png"
-                   alt="Remastered map of Dragonfall District, farmland around a moated stone ring" width="1049" height="1499" loading="lazy">
+              <img class="img-base" src="maps/continent-1/dragonfall-district/display-remaster.webp"
+                   alt="Remastered map of Dragonfall District" width="980" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/dragonfall-district/original.jpg"
-                     alt="Original hand-drawn Dragonfall District map scan" width="2595" height="3709" loading="lazy">
+                <img src="maps/continent-1/dragonfall-district/display-original.webp"
+                     alt="Original hand-drawn Dragonfall District map scan" width="980" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -352,15 +402,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/dragonfall-district/remaster.png" data-alt="Remastered Dragonfall District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/dragonfall-district/original.jpg" data-alt="Original Dragonfall District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/dragonfall-district/remaster.png" data-alt="Remastered map of Dragonfall District" data-dims="1049&#215;1499" data-size="3199 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/dragonfall-district/original.jpg" data-alt="Original hand-drawn Dragonfall District map scan" data-dims="2595&#215;3709" data-size="2629 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 003 - Dragonfall District</div>
+            <div class="page-no"><a href="#dragonfall-district">Page 003 - Dragonfall District</a></div>
             <div>
               <h3>Dragonfall District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">The wider farmland region around Dragonfall, laid out along cart roads radiating from a moated stone ring.</p>
+              <p class="page-summary">The wider farmland region around Dragonfall, laid out along cart roads radiating from a moated stone ring.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region</strong></div>
@@ -376,20 +426,20 @@
               <span class="tag">Standing stones</span>
               <span class="tag">Windmill</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> a circular stone ring enclosed by a water channel sits at the centre, with grain fields and cottages pressed up against it. A red-bannered castle holds the northern bluff above a rocky shore; a walled burial compound sits opposite it to the north-east. A palisaded tent camp and a second banner ground lie west of the ring, a windmill hamlet in the south-west, and a cluster of round thatched huts with field strips in the south-east. Watchtowers, ruins, lakes and cave mouths are scattered between.</p>
+            <p class="page-prose"><strong>On the map:</strong> a circular stone ring enclosed by a water channel sits at the centre, with grain fields and cottages pressed up against it. A red-bannered castle holds the northern bluff above a rocky shore; a walled burial compound sits opposite it to the north-east. A palisaded tent camp and a second banner ground lie west of the ring, a windmill hamlet in the south-west, and a cluster of round thatched huts with field strips in the south-east. Watchtowers, ruins, lakes and cave mouths are scattered between.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- GOREGROND DISTRICT -->
-        <article class="atlas-page" id="goregrond-district" style="--ar:0.725">
+        <article class="atlas-page" id="goregrond-district" style="--ar:0.725" data-tags="District|Badlands|Fungal forest|Fortress|Warrens" data-title="Goregrond District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-goregrond-district">
-              <img class="img-base" src="maps/continent-1/goregrond-district/remaster.png"
-                   alt="Remastered map of Goregrond District, badlands with a fungal forest" width="1068" height="1473" loading="lazy">
+              <img class="img-base" src="maps/continent-1/goregrond-district/display-remaster.webp"
+                   alt="Remastered map of Goregrond District" width="1015" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/goregrond-district/original.jpg"
-                     alt="Original hand-drawn Goregrond District map scan" width="2897" height="3994" loading="lazy">
+                <img src="maps/continent-1/goregrond-district/display-original.webp"
+                     alt="Original hand-drawn Goregrond District map scan" width="1015" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -400,15 +450,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/goregrond-district/remaster.png" data-alt="Remastered Goregrond District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/goregrond-district/original.jpg" data-alt="Original Goregrond District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/goregrond-district/remaster.png" data-alt="Remastered map of Goregrond District" data-dims="1068&#215;1473" data-size="3537 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/goregrond-district/original.jpg" data-alt="Original hand-drawn Goregrond District map scan" data-dims="2897&#215;3994" data-size="4178 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 004 - Goregrond District</div>
+            <div class="page-no"><a href="#goregrond-district">Page 004 - Goregrond District</a></div>
             <div>
               <h3>Goregrond District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">Arid badlands of mesas and cactus scrub, held by a stone fortress in the north and warrens in the hills.</p>
+              <p class="page-summary">Arid badlands of mesas and cactus scrub, held by a stone fortress in the north and warrens in the hills.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region</strong></div>
@@ -424,20 +474,20 @@
               <span class="tag">Fortress</span>
               <span class="tag">Warrens</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the harshest district charted so far. A forest of enormous red and blue mushrooms grows on pink-stained ground beside the river in the north-west. A grey stone fortress with an open fighting pit commands the northern road. To the west, a carved mesa stronghold stands over a black obelisk; hill warrens topped with tusked totems and hide huts occupy the eastern rises. Cactus, mesa stumps, thicket blocks, a cave mouth and a lone windmill fill the dry ground between, with autumn woodland along the north.</p>
+            <p class="page-prose"><strong>On the map:</strong> the harshest district charted so far. A forest of enormous red and blue mushrooms grows on pink-stained ground beside the river in the north-west. A grey stone fortress with an open fighting pit commands the northern road. To the west, a carved mesa stronghold stands over a black obelisk; hill warrens topped with tusked totems and hide huts occupy the eastern rises. Cactus, mesa stumps, thicket blocks, a cave mouth and a lone windmill fill the dry ground between, with autumn woodland along the north.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- HELMSVARD DISTRICT -->
-        <article class="atlas-page" id="helmsvard-district" style="--ar:0.705">
+        <article class="atlas-page" id="helmsvard-district" style="--ar:0.705" data-tags="District|Archipelago|Port|Lighthouse|Causeway" data-title="Helmsvard District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-helmsvard-district">
-              <img class="img-base" src="maps/continent-1/helmsvard-district/remaster.png"
-                   alt="Remastered map of Helmsvard District, a coastal archipelago and port town" width="1053" height="1493" loading="lazy">
+              <img class="img-base" src="maps/continent-1/helmsvard-district/display-remaster.webp"
+                   alt="Remastered map of Helmsvard District" width="987" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/helmsvard-district/original.jpg"
-                     alt="Original hand-drawn Helmsvard District map scan" width="2632" height="3730" loading="lazy">
+                <img src="maps/continent-1/helmsvard-district/display-original.webp"
+                     alt="Original hand-drawn Helmsvard District map scan" width="988" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -448,15 +498,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/helmsvard-district/remaster.png" data-alt="Remastered Helmsvard District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/helmsvard-district/original.jpg" data-alt="Original Helmsvard District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/helmsvard-district/remaster.png" data-alt="Remastered map of Helmsvard District" data-dims="1053&#215;1493" data-size="3374 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/helmsvard-district/original.jpg" data-alt="Original hand-drawn Helmsvard District map scan" data-dims="2632&#215;3730" data-size="2818 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 005 - Helmsvard District</div>
+            <div class="page-no"><a href="#helmsvard-district">Page 005 - Helmsvard District</a></div>
             <div>
               <h3>Helmsvard District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A drowned coastline of islands and straits, stitched together by one long causeway road and a working port.</p>
+              <p class="page-summary">A drowned coastline of islands and straits, stitched together by one long causeway road and a working port.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region</strong></div>
@@ -472,20 +522,20 @@
               <span class="tag">Lighthouse</span>
               <span class="tag">Causeway</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> more water than land. A lighthouse crowns the northernmost islet beside a round walled watch-fort, and a single road runs the length of a narrow peninsula from there to the southern shore. The port town at the centre pushes a dozen timber piers out into the strait. A small isle mid-channel holds a ruined chapel among crags; the eastern shore carries forested hamlets and watchtowers. A southern town with a chapel and hedge maze connects onward by a long timber trestle bridge. A dead tree marks the north-eastern island.</p>
+            <p class="page-prose"><strong>On the map:</strong> more water than land. A lighthouse crowns the northernmost islet beside a round walled watch-fort, and a single road runs the length of a narrow peninsula from there to the southern shore. The port town at the centre pushes a dozen timber piers out into the strait. A small isle mid-channel holds a ruined chapel among crags; the eastern shore carries forested hamlets and watchtowers. A southern town with a chapel and hedge maze connects onward by a long timber trestle bridge. A dead tree marks the north-eastern island.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- STORMWIND DISTRICT -->
-        <article class="atlas-page" id="stormwind-district" style="--ar:0.703">
+        <article class="atlas-page" id="stormwind-district" style="--ar:0.703" data-tags="Capital|Royal seat|Cathedral|Causeway|Garrison" data-title="Stormwind District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-stormwind-district">
-              <img class="img-base" src="maps/continent-1/stormwind-district/remaster.png"
-                   alt="Remastered map of Stormwind District, the royal capital and its processional causeway" width="1051" height="1496" loading="lazy">
+              <img class="img-base" src="maps/continent-1/stormwind-district/display-remaster.webp"
+                   alt="Remastered map of Stormwind District" width="984" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/stormwind-district/original.jpg"
-                     alt="Original hand-drawn Stormwind District map scan" width="2775" height="3956" loading="lazy">
+                <img src="maps/continent-1/stormwind-district/display-original.webp"
+                     alt="Original hand-drawn Stormwind District map scan" width="982" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -496,15 +546,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/stormwind-district/remaster.png" data-alt="Remastered Stormwind District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/stormwind-district/original.jpg" data-alt="Original Stormwind District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/stormwind-district/remaster.png" data-alt="Remastered map of Stormwind District" data-dims="1051&#215;1496" data-size="3579 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/stormwind-district/original.jpg" data-alt="Original hand-drawn Stormwind District map scan" data-dims="2775&#215;3956" data-size="3109 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 006 - Stormwind District</div>
+            <div class="page-no"><a href="#stormwind-district">Page 006 - Stormwind District</a></div>
             <div>
               <h3>Stormwind District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">The royal capital district and seat of power of the current ruling King, built along a single paved processional way.</p>
+              <p class="page-summary">The royal capital district and seat of power of the current ruling King, built along a single paved processional way.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region - royal seat</strong></div>
@@ -520,20 +570,20 @@
               <span class="tag">Causeway</span>
               <span class="tag">Garrison</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the seat of the kingdom. A white and gold spired city with blue roofs occupies the whole northern coast, and one broad paved causeway runs the entire length of the map from its main gate, broken by three fortified barbicans flying blue royal banners. A colossal ancient tree stands in the western woods above a district of pale towers. Military encampments in blue line the west and the barbican approaches; a red-and-white striped tournament pavilion sits east. Foundries with smoking chimneys and an artillery emplacement hold the north-east and the southern edge, with field strips beyond.</p>
+            <p class="page-prose"><strong>On the map:</strong> the seat of the kingdom. A white and gold spired city with blue roofs occupies the whole northern coast, and one broad paved causeway runs the entire length of the map from its main gate, broken by three fortified barbicans flying blue royal banners. A colossal ancient tree stands in the western woods above a district of pale towers. Military encampments in blue line the west and the barbican approaches; a red-and-white striped tournament pavilion sits east. Foundries with smoking chimneys and an artillery emplacement hold the north-east and the southern edge, with field strips beyond.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- TRUESSANT DISTRICT -->
-        <article class="atlas-page" id="truessant-district" style="--ar:1.420">
+        <article class="atlas-page" id="truessant-district" style="--ar:1.420" data-tags="District|Tropical|Waterfalls|Aqueduct|Hill city" data-title="Truessant District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-truessant-district">
-              <img class="img-base" src="maps/continent-1/truessant-district/remaster.png"
-                   alt="Remastered map of Truessant District, a tropical basin below tiered waterfalls" width="1494" height="1052" loading="lazy">
+              <img class="img-base" src="maps/continent-1/truessant-district/display-remaster.webp"
+                   alt="Remastered map of Truessant District" width="1400" height="986" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/truessant-district/original.jpg"
-                     alt="Original hand-drawn Truessant District map scan" width="3851" height="2712" loading="lazy">
+                <img src="maps/continent-1/truessant-district/display-original.webp"
+                     alt="Original hand-drawn Truessant District map scan" width="1400" height="986" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -544,15 +594,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/truessant-district/remaster.png" data-alt="Remastered Truessant District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/truessant-district/original.jpg" data-alt="Original Truessant District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/truessant-district/remaster.png" data-alt="Remastered map of Truessant District" data-dims="1494&#215;1052" data-size="3581 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/truessant-district/original.jpg" data-alt="Original hand-drawn Truessant District map scan" data-dims="3851&#215;2712" data-size="2580 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 007 - Truessant District</div>
+            <div class="page-no"><a href="#truessant-district">Page 007 - Truessant District</a></div>
             <div>
               <h3>Truessant District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A warm palm-grown basin fed by tiered waterfalls, overlooked by a city terraced into the rock.</p>
+              <p class="page-summary">A warm palm-grown basin fed by tiered waterfalls, overlooked by a city terraced into the rock.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region</strong></div>
@@ -568,20 +618,20 @@
               <span class="tag">Aqueduct</span>
               <span class="tag">Hill city</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> the only landscape page in the district set, and the only tropical one. Water steps down from a mountain lake in the north-west over several falls into the river that feeds the basin. A great arched stone bridge carries the northern road over a waterfall at the top of the map. A blue-bannered city climbs the rock in tiers at the north-east corner above its own harbour. Palm groves cover the central plain; a blue-bannered keep with a drill yard stands west of centre, cave mouths and grottoes open in the western massif, and blossoming orchards, fenced pasture and a southern gatehouse close the basin.</p>
+            <p class="page-prose"><strong>On the map:</strong> the only landscape page in the district set, and the only tropical one. Water steps down from a mountain lake in the north-west over several falls into the river that feeds the basin. A great arched stone bridge carries the northern road over a waterfall at the top of the map. A blue-bannered city climbs the rock in tiers at the north-east corner above its own harbour. Palm groves cover the central plain; a blue-bannered keep with a drill yard stands west of centre, cave mouths and grottoes open in the western massif, and blossoming orchards, fenced pasture and a southern gatehouse close the basin.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- WAVESWATER -->
-        <article class="atlas-page" id="waveswater" style="--ar:0.734">
+        <article class="atlas-page" id="waveswater" style="--ar:0.734" data-tags="Wetland|Delta|Lake|Summit castle|Stilt village" data-title="Waveswater">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-waveswater">
-              <img class="img-base" src="maps/continent-1/waveswater/remaster.png"
-                   alt="Remastered map of Waveswater, a wetland delta below a summit castle" width="1075" height="1464" loading="lazy">
+              <img class="img-base" src="maps/continent-1/waveswater/display-remaster.webp"
+                   alt="Remastered map of Waveswater" width="1028" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/waveswater/original.jpg"
-                     alt="Original hand-drawn Waveswater map scan" width="2915" height="3969" loading="lazy">
+                <img src="maps/continent-1/waveswater/display-original.webp"
+                     alt="Original hand-drawn Waveswater map scan" width="1028" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -592,15 +642,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/waveswater/remaster.png" data-alt="Remastered Waveswater map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/waveswater/original.jpg" data-alt="Original Waveswater scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/waveswater/remaster.png" data-alt="Remastered map of Waveswater" data-dims="1075&#215;1464" data-size="3488 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/waveswater/original.jpg" data-alt="Original hand-drawn Waveswater map scan" data-dims="2915&#215;3969" data-size="3311 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 008 - Waveswater</div>
+            <div class="page-no"><a href="#waveswater">Page 008 - Waveswater</a></div>
             <div>
               <h3>Waveswater</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A great lake and its braided marsh delta, with a castle on the summit above and a walled island city below.</p>
+              <p class="page-summary">A great lake and its braided marsh delta, with a castle on the summit above and a walled island city below.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known settlement</strong></div>
@@ -616,20 +666,20 @@
               <span class="tag">Summit castle</span>
               <span class="tag">Stilt village</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> open lake fills the north. A sheer grey mountain rises from its eastern shore with a castle on the very summit, a cliffside village on ledges below it beside two waterfalls, and a switchback road climbing between them. West and south of the lake the land dissolves into reed channels and islets carrying stilt villages, huts and ruins among palm and willow. A circular walled island city sits in the river mouth at the south-east corner; a walled barracks compound and a watchtower hold the southern approach. A fishing boat is drawn up on the eastern shore, and a cave opens at the mountain's foot.</p>
+            <p class="page-prose"><strong>On the map:</strong> open lake fills the north. A sheer grey mountain rises from its eastern shore with a castle on the very summit, a cliffside village on ledges below it beside two waterfalls, and a switchback road climbing between them. West and south of the lake the land dissolves into reed channels and islets carrying stilt villages, huts and ruins among palm and willow. A circular walled island city sits in the river mouth at the south-east corner; a walled barracks compound and a watchtower hold the southern approach. A fishing boat is drawn up on the eastern shore, and a cave opens at the mountain's foot.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
 
         <!-- WEST HAVEN DISTRICT -->
-        <article class="atlas-page" id="west-haven-district" style="--ar:0.700">
+        <article class="atlas-page" id="west-haven-district" style="--ar:0.700" data-tags="District|Volcano|Blossom woods|Farmland|Manor" data-title="West Haven District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-west-haven-district">
-              <img class="img-base" src="maps/continent-1/west-haven-district/remaster.png"
-                   alt="Remastered map of West Haven District, farmland below a crater volcano" width="1049" height="1499" loading="lazy">
+              <img class="img-base" src="maps/continent-1/west-haven-district/display-remaster.webp"
+                   alt="Remastered map of West Haven District" width="980" height="1400" loading="lazy" decoding="async">
               <div class="img-after">
-                <img src="maps/continent-1/west-haven-district/original.jpg"
-                     alt="Original hand-drawn West Haven District map scan" width="2765" height="3960" loading="lazy">
+                <img src="maps/continent-1/west-haven-district/display-original.webp"
+                     alt="Original hand-drawn West Haven District map scan" width="978" height="1400" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -640,15 +690,15 @@
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-lightbox="maps/continent-1/west-haven-district/remaster.png" data-alt="Remastered West Haven District map">Open remaster</button>
-              <button class="btn" type="button" data-lightbox="maps/continent-1/west-haven-district/original.jpg" data-alt="Original West Haven District scan">Open original</button>
+              <button class="btn primary" type="button" data-view="maps/continent-1/west-haven-district/remaster.png" data-alt="Remastered map of West Haven District" data-dims="1049&#215;1499" data-size="3320 KB">Open remaster</button>
+              <button class="btn" type="button" data-view="maps/continent-1/west-haven-district/original.jpg" data-alt="Original hand-drawn West Haven District map scan" data-dims="2765&#215;3960" data-size="2252 KB">Open original</button>
             </div>
           </div>
           <div class="page-meta">
-            <div class="page-no">Page 009 - West Haven District</div>
+            <div class="page-no"><a href="#west-haven-district">Page 009 - West Haven District</a></div>
             <div>
               <h3>West Haven District</h3>
-              <p style="margin:.5rem 0 0;color:var(--color-text-muted)">A narrow farming isthmus of blossom woods and tilled strips, running south from an active volcano.</p>
+              <p class="page-summary">A narrow farming isthmus of blossom woods and tilled strips, running south from an active volcano.</p>
             </div>
             <div class="location">
               <div><div class="label">Location</div><strong>Known region</strong></div>
@@ -664,18 +714,12 @@
               <span class="tag">Farmland</span>
               <span class="tag">Manor</span>
             </div>
-            <p style="color:var(--color-text-muted)"><strong>On the map:</strong> a smoking volcano closes the northern end, its crater lake feeding a river that runs almost dead straight down the centre of the district and is crossed by three timber bridges. Pink and white blossom woodland spreads across the north and west, with a great white-canopied tree at its heart. A blue-bannered stone keep with two round palisaded granaries stands east of the river; a blue-bannered walled castle and tent camp hold the west shore. A pink manor and its walled estate fields sit to the east. Broad tilled strips fill the centre and south, with a barrel-stacked timber warehouse in the south-west and mine works below the volcano. Sea on both flanks.</p>
+            <p class="page-prose"><strong>On the map:</strong> a smoking volcano closes the northern end, its crater lake feeding a river that runs almost dead straight down the centre of the district and is crossed by three timber bridges. Pink and white blossom woodland spreads across the north and west, with a great white-canopied tree at its heart. A blue-bannered stone keep with two round palisaded granaries stands east of the river; a blue-bannered walled castle and tent camp hold the west shore. A pink manor and its walled estate fields sit to the east. Broad tilled strips fill the centre and south, with a barrel-stacked timber warehouse in the south-west and mine works below the volcano. Sea on both flanks.</p>
             <p><span class="pending">Lore awaiting author notes</span></p>
           </div>
         </article>
-
-        <!-- ADD NEW MAPS FOR CONTINENT ONE BELOW - copy an article block above, update id, --ar, paths, page number, title and lore -->
-
         </div>
       </article>
-
-      <!-- ADD FURTHER CONTINENTS AS SIBLING <article class="continent"> BLOCKS HERE -->
-
     </section>
 
     <section id="notes">
@@ -687,7 +731,7 @@
         <div class="note"><strong>Grouped by continent</strong><br>Arda's seven sundered continents each get their own run of pages. Continent One is charted first; the other six follow as their maps are scanned.</div>
         <div class="note"><strong>Page numbers are permanent</strong><br>Each map keeps the page number it was given when it entered the archive. Pages are never renumbered, so a reference stays valid forever.</div>
         <div class="note"><strong>Location known?</strong><br>Each entry notes whether the location is confirmed in the world of Arda, or still being charted and discovered.</div>
-        <div class="note"><strong>Author's lore pending</strong><br>Where a page shows "lore awaiting author notes", the description records only what is visibly drawn on the map. The author's own lore replaces it as it arrives.</div>
+        <div class="note"><strong>Author's lore pending</strong><br>Where a page shows &quot;lore awaiting author notes&quot;, the description records only what is visibly drawn on the map. The author's own lore replaces it as it arrives.</div>
         <div class="note"><strong>Growing over time</strong><br>400+ hand-drawn maps to be added as they are scanned and converted. New pages will appear here as each one is done.</div>
       </div>
     </section>
@@ -697,10 +741,21 @@
     Atlas of Arda - a living archive of hand-drawn and remastered maps. Hosted on GitHub Pages.
   </footer>
 
-  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Map preview">
-    <div class="lightbox-inner">
-      <button type="button" id="closeLightbox" aria-label="Close preview">&#x2715;</button>
-      <img id="lightboxImage" src="" alt="Expanded map preview" width="1200" height="900">
+  <div class="viewer" id="viewer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Full-resolution map viewer">
+    <div class="viewer-stage">
+      <img id="viewerImage" alt="">
+    </div>
+    <span class="viewer-hint">Scroll or pinch to zoom - drag to pan - double-click to toggle</span>
+    <button class="viewer-btn viewer-close" type="button" id="viewerClose" aria-label="Close viewer">&#x2715;</button>
+    <div class="viewer-bar">
+      <div class="viewer-meta">
+        <span id="viewerDims"></span>
+        <span id="viewerSize"></span>
+        <span>Zoom <span id="viewerZoom">100%</span></span>
+      </div>
+      <div class="viewer-actions">
+        <a class="viewer-btn" id="viewerDownload" href="" download>Download full resolution</a>
+      </div>
     </div>
   </div>
 
@@ -715,27 +770,7 @@
         root.setAttribute('data-theme', dark ? 'dark' : 'light');
       });
 
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImage = document.getElementById('lightboxImage');
-      const closeBtn = document.getElementById('closeLightbox');
-      document.querySelectorAll('[data-lightbox]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          lightboxImage.src = btn.dataset.lightbox;
-          lightboxImage.alt = btn.dataset.alt || '';
-          lightbox.classList.add('open');
-          lightbox.setAttribute('aria-hidden', 'false');
-          closeBtn.focus();
-        });
-      });
-      function hideLightbox() {
-        lightbox.classList.remove('open');
-        lightbox.setAttribute('aria-hidden', 'true');
-        lightboxImage.src = '';
-      }
-      closeBtn.addEventListener('click', hideLightbox);
-      lightbox.addEventListener('click', e => { if (e.target === lightbox) hideLightbox(); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && lightbox.classList.contains('open')) hideLightbox(); });
-
+      /* ---------- compare sliders ---------- */
       function initCompare(wrap) {
         const afterPanel = wrap.querySelector('.img-after');
         const afterImg   = afterPanel.querySelector('img');
@@ -748,42 +783,170 @@
           afterPanel.style.width = pct + '%';
           afterImg.style.width = wrap.offsetWidth + 'px';
         }
-
         function posFromX(clientX) {
           const r = wrap.getBoundingClientRect();
           if (!r.width) return;
           applyPct(((clientX - r.left) / r.width) * 100);
         }
-
         function initPos() {
           afterImg.style.width = wrap.offsetWidth + 'px';
           applyPct(50);
         }
 
+        /* Sized immediately - the CSS aspect-ratio means the wrap has its final
+           width before the image loads, so the overlay is never left squashed
+           into the 50% panel while a lazy image is still on the wire. */
+        initPos();
         const baseImg = wrap.querySelector('img.img-base');
-        if (baseImg.complete) { initPos(); } else { baseImg.addEventListener('load', initPos); }
+        if (!baseImg.complete) baseImg.addEventListener('load', initPos);
         window.addEventListener('resize', initPos);
 
         divider.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
         document.addEventListener('mousemove', e => { if (dragging) posFromX(e.clientX); });
         document.addEventListener('mouseup',   () => { dragging = false; });
 
-        wrap.addEventListener('touchstart', e => {
-          dragging = true;
-          posFromX(e.touches[0].clientX);
-        }, { passive: true });
+        wrap.addEventListener('touchstart', e => { dragging = true; posFromX(e.touches[0].clientX); }, { passive: true });
+        wrap.addEventListener('touchmove',  e => { if (!dragging) return; e.preventDefault(); posFromX(e.touches[0].clientX); }, { passive: false });
+        wrap.addEventListener('touchend',    () => { dragging = false; });
+        wrap.addEventListener('touchcancel', () => { dragging = false; });
+      }
+      document.querySelectorAll('.compare-wrap').forEach(initCompare);
 
-        wrap.addEventListener('touchmove', e => {
-          if (!dragging) return;
-          e.preventDefault();
-          posFromX(e.touches[0].clientX);
-        }, { passive: false });
+      /* ---------- full-resolution viewer ---------- */
+      const viewer   = document.getElementById('viewer');
+      const stage    = viewer.querySelector('.viewer-stage');
+      const vImg     = document.getElementById('viewerImage');
+      const vDims    = document.getElementById('viewerDims');
+      const vSize    = document.getElementById('viewerSize');
+      const vZoom    = document.getElementById('viewerZoom');
+      const vDownload= document.getElementById('viewerDownload');
+      const vClose   = document.getElementById('viewerClose');
 
-        wrap.addEventListener('touchend',   () => { dragging = false; });
-        wrap.addEventListener('touchcancel',() => { dragging = false; });
+      let scale = 1, fit = 1, tx = 0, ty = 0;
+      const pointers = new Map();
+      let pinchFrom = null;
+
+      function render() {
+        vImg.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+        vZoom.textContent = Math.round((scale / fit) * 100) + '%';
+      }
+      function clamp() {
+        const vw = stage.clientWidth, vh = stage.clientHeight;
+        const w = vImg.naturalWidth * scale, h = vImg.naturalHeight * scale;
+        /* Centre on whichever axis fits; otherwise keep the image covering the stage. */
+        tx = w <= vw ? (vw - w) / 2 : Math.min(0, Math.max(vw - w, tx));
+        ty = h <= vh ? (vh - h) / 2 : Math.min(0, Math.max(vh - h, ty));
+      }
+      function fitToStage() {
+        const vw = stage.clientWidth, vh = stage.clientHeight;
+        fit = Math.min(vw / vImg.naturalWidth, vh / vImg.naturalHeight);
+        scale = fit; clamp(); render();
+      }
+      function zoomAt(cx, cy, next) {
+        const min = fit, max = Math.max(fit * 1.05, 2);
+        const k = Math.min(max, Math.max(min, next));
+        const r = stage.getBoundingClientRect();
+        const px = cx - r.left, py = cy - r.top;
+        tx = px - ((px - tx) * k) / scale;
+        ty = py - ((py - ty) * k) / scale;
+        scale = k; clamp(); render();
       }
 
-      document.querySelectorAll('.compare-wrap').forEach(initCompare);
+      function openViewer(btn) {
+        vImg.removeAttribute('src');
+        vImg.src = btn.dataset.view;
+        vImg.alt = btn.dataset.alt || '';
+        vDims.textContent = btn.dataset.dims || '';
+        vSize.textContent = btn.dataset.size || '';
+        vDownload.href = btn.dataset.view;
+        viewer.classList.add('open');
+        viewer.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        if (vImg.complete && vImg.naturalWidth) fitToStage();
+        else vImg.addEventListener('load', fitToStage, { once: true });
+      }
+      function closeViewer() {
+        viewer.classList.remove('open');
+        viewer.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        vImg.removeAttribute('src');
+        pointers.clear();
+      }
+
+      document.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => openViewer(btn));
+      });
+      vClose.addEventListener('click', closeViewer);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && viewer.classList.contains('open')) closeViewer();
+      });
+      window.addEventListener('resize', () => { if (viewer.classList.contains('open')) fitToStage(); });
+
+      stage.addEventListener('wheel', e => {
+        e.preventDefault();
+        zoomAt(e.clientX, e.clientY, scale * (e.deltaY < 0 ? 1.18 : 1 / 1.18));
+      }, { passive: false });
+
+      stage.addEventListener('dblclick', e => {
+        zoomAt(e.clientX, e.clientY, Math.abs(scale - fit) < 1e-6 ? 1 : fit);
+      });
+
+      stage.addEventListener('pointerdown', e => {
+        /* Throws if the pointer is not active (and for synthetic events), which
+           must not abort the drag setup below. */
+        try { stage.setPointerCapture(e.pointerId); } catch {}
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        stage.classList.add('is-panning');
+        if (pointers.size === 2) {
+          const [a, b] = [...pointers.values()];
+          pinchFrom = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale };
+        }
+      });
+      stage.addEventListener('pointermove', e => {
+        const prev = pointers.get(e.pointerId);
+        if (!prev) return;
+        const cur = { x: e.clientX, y: e.clientY };
+        pointers.set(e.pointerId, cur);
+
+        if (pointers.size === 2 && pinchFrom) {
+          const [a, b] = [...pointers.values()];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          zoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, pinchFrom.scale * (dist / pinchFrom.dist));
+        } else if (pointers.size === 1) {
+          tx += cur.x - prev.x; ty += cur.y - prev.y;
+          clamp(); render();
+        }
+      });
+      function endPointer(e) {
+        pointers.delete(e.pointerId);
+        if (pointers.size < 2) pinchFrom = null;
+        if (pointers.size === 0) stage.classList.remove('is-panning');
+      }
+      stage.addEventListener('pointerup', endPointer);
+      stage.addEventListener('pointercancel', endPointer);
+
+      /* ---------- tag filters ---------- */
+      document.querySelectorAll('.atlas-index').forEach(index => {
+        const continent = index.closest('.continent');
+        const pages = [...continent.querySelectorAll('.atlas-page')];
+        const empty = index.querySelector('.filter-empty');
+        const chips = [...index.querySelectorAll('.chip')];
+
+        chips.forEach(chip => chip.addEventListener('click', () => {
+          const tag = chip.dataset.filter;
+          chips.forEach(c => c.classList.toggle('is-active', c === chip));
+          let shown = 0;
+          pages.forEach(page => {
+            const tags = (page.dataset.tags || '').split('|');
+            const match = tag === 'all' || tags.includes(tag);
+            page.hidden = !match;
+            if (match) shown++;
+            const link = index.querySelector('[data-index-for="' + page.id + '"]');
+            if (link) link.toggleAttribute('data-dimmed', !match);
+          });
+          empty.hidden = shown > 0;
+        }));
+      });
     })();
   </script>
 </body>

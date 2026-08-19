@@ -1,0 +1,277 @@
+{
+  "site": {
+    "title": "Atlas of Arda",
+    "description": "A book-style atlas of hand-drawn and remastered fantasy maps from the world of Arda.",
+    "url": "https://powerfulqa.github.io/arda-atlas/",
+    "heroHeading": "Every map from Arda, original and remastered, side by side.",
+    "heroEyebrow": "World of Arda - Map Archive",
+    "heroLead": "A book-style atlas of the world of Arda - seven sundered continents, charted one map at a time. Each page shows the original hand-drawn scan alongside the Warcraft-style remaster, with location notes, region and lore.",
+    "heroImage": "continent-1/dragonfall",
+    "footer": "Atlas of Arda - a living archive of hand-drawn and remastered maps. Hosted on GitHub Pages."
+  },
+  "introCards": [
+    {
+      "title": "Drag to compare",
+      "body": "Slide between the original drawing and the painted remaster on every page."
+    },
+    {
+      "title": "Location notes",
+      "body": "Region, type, landmarks and campaign lore on the facing page."
+    },
+    {
+      "title": "Growing archive",
+      "body": "400+ maps to be added over time as they are scanned and remastered."
+    }
+  ],
+  "world": {
+    "loreQuote": "Arda was originally a massive pangaea, but after a night of disaster when the world was still young, current-day Arda is now broken up into seven geographically distinct continents.",
+    "loreAttribution": "The author, on the shape of the world",
+    "intro": "Every map in this archive belongs to one of those seven landmasses. The atlas is grouped the same way, so each continent keeps its own run of pages as it is scanned and remastered. Six of the seven are still to be charted here.",
+    "continentCount": 7
+  },
+  "notes": [
+    {
+      "title": "Original and remaster",
+      "body": "Every page keeps both versions. Drag the slider to compare them directly without leaving the page."
+    },
+    {
+      "title": "Grouped by continent",
+      "body": "Arda's seven sundered continents each get their own run of pages. Continent One is charted first; the other six follow as their maps are scanned."
+    },
+    {
+      "title": "Page numbers are permanent",
+      "body": "Each map keeps the page number it was given when it entered the archive. Pages are never renumbered, so a reference stays valid forever."
+    },
+    {
+      "title": "Location known?",
+      "body": "Each entry notes whether the location is confirmed in the world of Arda, or still being charted and discovered."
+    },
+    {
+      "title": "Author's lore pending",
+      "body": "Where a page shows \"lore awaiting author notes\", the description records only what is visibly drawn on the map. The author's own lore replaces it as it arrives."
+    },
+    {
+      "title": "Growing over time",
+      "body": "400+ hand-drawn maps to be added as they are scanned and converted. New pages will appear here as each one is done."
+    }
+  ],
+  "continents": [
+    {
+      "id": "continent-1",
+      "eyebrow": "Continent I of VII",
+      "name": "Continent One",
+      "blurb": "The main continent of Arda: home of the humans, and seat of power of the current ruling King. Its royal capital sits in Stormwind District, at the end of a paved processional causeway.",
+      "namePending": true,
+      "maps": [
+        {
+          "page": 1,
+          "slug": "dragonfall",
+          "title": "Dragonfall",
+          "summary": "An iron-mining city built around one of the last intact dragon skeletons in Arda.",
+          "location": "Known settlement",
+          "region": "Northern mountain basin",
+          "landmark": "Dragon skeleton above the city fortress",
+          "type": "Mining city - Iron",
+          "status": "Remastered",
+          "tags": [
+            "City",
+            "Mining",
+            "Dragon remains",
+            "Fortified",
+            "Mountains"
+          ],
+          "onMap": null,
+          "lore": "The city grew up around the bones of the last great dragon. The fortress walls were built from the stone of the mountain the dragon fell into. Iron veins run deep beneath.",
+          "lorePending": false,
+          "original": "original.webp",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 2,
+          "slug": "dimrock",
+          "title": "Dimrock",
+          "summary": "A timber village on a green shelf deep inside a walled valley of grey rock, reached by a single bridge over the river.",
+          "location": "Known settlement",
+          "region": "Enclosed mountain valley",
+          "landmark": "Ruined bell tower and roofless abbey",
+          "type": "Village - highland",
+          "status": "Remastered",
+          "tags": [
+            "Village",
+            "Valley",
+            "Ruins",
+            "Mine",
+            "Forest",
+            "River"
+          ],
+          "onMap": "roughly twenty timber cabins and a longhouse sit on grassland ringed by sheer cliffs. A broken stone tower and a roofless abbey stand at the northern end. A plank bridge crosses the river to dense conifer forest on the west bank; a mine adit opens high in the northern rock face at the top of a switchback path, with a second cave mouth in the eastern cliff. Crop plots and a barn close off the southern end above the coast.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 3,
+          "slug": "dragonfall-district",
+          "title": "Dragonfall District",
+          "summary": "The wider farmland region around Dragonfall, laid out along cart roads radiating from a moated stone ring.",
+          "location": "Known region",
+          "region": "Coastal lowland farmland",
+          "landmark": "Moated stone ring at the district's heart",
+          "type": "District - agricultural",
+          "status": "Remastered",
+          "tags": [
+            "District",
+            "Farmland",
+            "Castle",
+            "Standing stones",
+            "Windmill"
+          ],
+          "onMap": "a circular stone ring enclosed by a water channel sits at the centre, with grain fields and cottages pressed up against it. A red-bannered castle holds the northern bluff above a rocky shore; a walled burial compound sits opposite it to the north-east. A palisaded tent camp and a second banner ground lie west of the ring, a windmill hamlet in the south-west, and a cluster of round thatched huts with field strips in the south-east. Watchtowers, ruins, lakes and cave mouths are scattered between.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 4,
+          "slug": "goregrond-district",
+          "title": "Goregrond District",
+          "summary": "Arid badlands of mesas and cactus scrub, held by a stone fortress in the north and warrens in the hills.",
+          "location": "Known region",
+          "region": "Mesa badlands",
+          "landmark": "Fungal forest and the black obelisk",
+          "type": "District - frontier",
+          "status": "Remastered",
+          "tags": [
+            "District",
+            "Badlands",
+            "Fungal forest",
+            "Fortress",
+            "Warrens"
+          ],
+          "onMap": "the harshest district charted so far. A forest of enormous red and blue mushrooms grows on pink-stained ground beside the river in the north-west. A grey stone fortress with an open fighting pit commands the northern road. To the west, a carved mesa stronghold stands over a black obelisk; hill warrens topped with tusked totems and hide huts occupy the eastern rises. Cactus, mesa stumps, thicket blocks, a cave mouth and a lone windmill fill the dry ground between, with autumn woodland along the north.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 5,
+          "slug": "helmsvard-district",
+          "title": "Helmsvard District",
+          "summary": "A drowned coastline of islands and straits, stitched together by one long causeway road and a working port.",
+          "location": "Known region",
+          "region": "Coastal archipelago",
+          "landmark": "Northern lighthouse and the strait causeway",
+          "type": "District - maritime",
+          "status": "Remastered",
+          "tags": [
+            "District",
+            "Archipelago",
+            "Port",
+            "Lighthouse",
+            "Causeway"
+          ],
+          "onMap": "more water than land. A lighthouse crowns the northernmost islet beside a round walled watch-fort, and a single road runs the length of a narrow peninsula from there to the southern shore. The port town at the centre pushes a dozen timber piers out into the strait. A small isle mid-channel holds a ruined chapel among crags; the eastern shore carries forested hamlets and watchtowers. A southern town with a chapel and hedge maze connects onward by a long timber trestle bridge. A dead tree marks the north-eastern island.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 6,
+          "slug": "stormwind-district",
+          "title": "Stormwind District",
+          "summary": "The royal capital district and seat of power of the current ruling King, built along a single paved processional way.",
+          "location": "Known region - royal seat",
+          "region": "Northern coast of Continent One",
+          "landmark": "The processional causeway and the cathedral city",
+          "type": "Capital district",
+          "status": "Remastered",
+          "tags": [
+            "Capital",
+            "Royal seat",
+            "Cathedral",
+            "Causeway",
+            "Garrison"
+          ],
+          "onMap": "the seat of the kingdom. A white and gold spired city with blue roofs occupies the whole northern coast, and one broad paved causeway runs the entire length of the map from its main gate, broken by three fortified barbicans flying blue royal banners. A colossal ancient tree stands in the western woods above a district of pale towers. Military encampments in blue line the west and the barbican approaches; a red-and-white striped tournament pavilion sits east. Foundries with smoking chimneys and an artillery emplacement hold the north-east and the southern edge, with field strips beyond.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 7,
+          "slug": "truessant-district",
+          "title": "Truessant District",
+          "summary": "A warm palm-grown basin fed by tiered waterfalls, overlooked by a city terraced into the rock.",
+          "location": "Known region",
+          "region": "Tropical river basin",
+          "landmark": "The tiered falls and the arched aqueduct",
+          "type": "District - tropical",
+          "status": "Remastered",
+          "tags": [
+            "District",
+            "Tropical",
+            "Waterfalls",
+            "Aqueduct",
+            "Hill city"
+          ],
+          "onMap": "the only landscape page in the district set, and the only tropical one. Water steps down from a mountain lake in the north-west over several falls into the river that feeds the basin. A great arched stone bridge carries the northern road over a waterfall at the top of the map. A blue-bannered city climbs the rock in tiers at the north-east corner above its own harbour. Palm groves cover the central plain; a blue-bannered keep with a drill yard stands west of centre, cave mouths and grottoes open in the western massif, and blossoming orchards, fenced pasture and a southern gatehouse close the basin.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 8,
+          "slug": "waveswater",
+          "title": "Waveswater",
+          "summary": "A great lake and its braided marsh delta, with a castle on the summit above and a walled island city below.",
+          "location": "Known settlement",
+          "region": "Lakeland and wetland delta",
+          "landmark": "Summit castle and the ringed island city",
+          "type": "Lakeland - mixed settlement",
+          "status": "Remastered",
+          "tags": [
+            "Wetland",
+            "Delta",
+            "Lake",
+            "Summit castle",
+            "Stilt village"
+          ],
+          "onMap": "open lake fills the north. A sheer grey mountain rises from its eastern shore with a castle on the very summit, a cliffside village on ledges below it beside two waterfalls, and a switchback road climbing between them. West and south of the lake the land dissolves into reed channels and islets carrying stilt villages, huts and ruins among palm and willow. A circular walled island city sits in the river mouth at the south-east corner; a walled barracks compound and a watchtower hold the southern approach. A fishing boat is drawn up on the eastern shore, and a cave opens at the mountain's foot.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        },
+        {
+          "page": 9,
+          "slug": "west-haven-district",
+          "title": "West Haven District",
+          "summary": "A narrow farming isthmus of blossom woods and tilled strips, running south from an active volcano.",
+          "location": "Known region",
+          "region": "Volcanic isthmus",
+          "landmark": "Crater volcano and the great white tree",
+          "type": "District - agricultural",
+          "status": "Remastered",
+          "tags": [
+            "District",
+            "Volcano",
+            "Blossom woods",
+            "Farmland",
+            "Manor"
+          ],
+          "onMap": "a smoking volcano closes the northern end, its crater lake feeding a river that runs almost dead straight down the centre of the district and is crossed by three timber bridges. Pink and white blossom woodland spreads across the north and west, with a great white-canopied tree at its heart. A blue-bannered stone keep with two round palisaded granaries stands east of the river; a blue-bannered walled castle and tent camp hold the west shore. A pink manor and its walled estate fields sit to the east. Broad tilled strips fill the centre and south, with a barrel-stacked timber warehouse in the south-west and mine works below the volcano. Sea on both flanks.",
+          "lore": null,
+          "lorePending": true,
+          "original": "original.jpg",
+          "remaster": "remaster.png"
+        }
+      ]
+    }
+  ]
+}

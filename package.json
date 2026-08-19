@@ -1,0 +1,17 @@
+{
+  "name": "arda-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A book-style atlas of hand-drawn and remastered maps from the world of Arda.",
+  "type": "module",
+  "scripts": {
+    "derivatives": "node tools/build-derivatives.mjs",
+    "build": "node tools/build-site.mjs",
+    "verify": "node tools/verify.mjs",
+    "all": "npm run derivatives && npm run build && npm run verify",
+    "serve": "node tools/serve.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
+  }
+}

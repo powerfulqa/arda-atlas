@@ -2,7 +2,8 @@
 
 A book-style fantasy map atlas for the world of Arda.
 
-Each page shows the original hand-drawn D&D map scan alongside a Warcraft-style remastered version, with location notes, region, lore and tags.
+Each page shows the original hand-drawn D&D map scan alongside a Warcraft-style remastered
+version, with location notes, region, lore and tags.
 
 ## Live site
 
@@ -10,85 +11,145 @@ https://powerfulqa.github.io/arda-atlas
 
 ## The world
 
-> Arda was originally a massive pangaea, but after a night of disaster when the world was still young, current-day Arda is now broken up into seven geographically distinct continents.
+> Arda was originally a massive pangaea, but after a night of disaster when the world was
+> still young, current-day Arda is now broken up into seven geographically distinct continents.
 
-The archive is organised the same way. Each continent gets its own directory under `maps/` and its own group of pages in `index.html`.
+The archive is organised the same way. Each continent gets its own directory under `maps/`
+and its own group of pages on the site.
 
 | Continent | Directory | Status |
 |---|---|---|
 | One - home of the humans, seat of the ruling King | `maps/continent-1/` | 9 maps charted |
 | Two to Seven | - | uncharted |
 
-Continent One has no canonical name yet. When the author supplies one, rename the directory and update the `#continent-1` heading in `index.html`.
+Continent One has no canonical name yet. When the author supplies one, rename the directory
+and update `name` in `data/maps.json`.
 
-## Structure
+---
+
+## `index.html` is generated - do not edit it
+
+All content lives in **`data/maps.json`**. `index.html` is written by the build and any hand
+edit is lost on the next run. The file carries a banner saying so.
 
 ```
-maps/
-  continent-1/
-    dragonfall/
-      original.webp   - hand-drawn scan
-      remaster.png    - Warcraft-style remaster
-    dimrock/
-    dragonfall-district/
-    goregrond-district/
-    helmsvard-district/
-    stormwind-district/
-    truessant-district/
-    waveswater/
-    west-haven-district/
-index.html            - the whole site: styles, pages and compare slider
+data/maps.json            <- the only file you edit for content
+tools/build-derivatives.mjs  <- makes the display-size images
+tools/build-site.mjs         <- writes index.html from the manifest
+tools/verify.mjs             <- checks the result
+tools/serve.mjs              <- local preview server
+index.html                <- GENERATED
 ```
 
-## File naming rules
+## Setup
 
-These are not cosmetic. GitHub Pages serves from a case-sensitive Linux filesystem, so a
-mismatch that works locally on Windows will 404 in production.
+```
+npm install
+```
 
-- **All lowercase.** `original.jpg`, not `Original.JPG`.
-- **No spaces in directory names.** Use hyphens: `west-haven-district`, not `west haven district`.
-- Keep the extension the file actually is. Do not rename a `.png` to `.jpg`.
-- One directory per map, containing exactly `original.<ext>` and `remaster.png`.
+Requires Node 18+ (developed on 24). The only dependency is `sharp`, for image processing.
 
 ## Adding a new map
 
-1. Create `maps/continent-<n>/<location-slug>/` and drop in `original.<ext>` and `remaster.png`.
-2. Read the real pixel dimensions of both files.
-3. Copy an existing `<article class="atlas-page">` block in `index.html` and update:
-   - `id` and the `id` on the inner `.compare-wrap` (`cmp-<slug>`)
-   - **`style="--ar:<width/height>"`** on the article - the remaster's width divided by its
-     height, to 3 decimal places. This drives the slider's aspect ratio. Get it wrong and the
-     map is cropped.
-   - both `src` paths and both `data-lightbox` paths
-   - `width` and `height` on both `<img>` tags, matching the real pixel dimensions
-   - the page number, title, description, location panel and tags
-4. Confirm every path resolves before committing.
+1. Create `maps/continent-<n>/<location-slug>/` and drop in the two masters:
+   `original.<ext>` and `remaster.png`.
+2. Add an entry to the continent's `maps` array in `data/maps.json`:
+
+```json
+{
+  "page": 10,
+  "slug": "new-place",
+  "title": "New Place",
+  "summary": "One line describing the map.",
+  "location": "Known settlement",
+  "region": "...",
+  "landmark": "...",
+  "type": "Village - highland",
+  "status": "Remastered",
+  "tags": ["Village", "Forest"],
+  "onMap": "What is visibly drawn on the map.",
+  "lore": null,
+  "lorePending": true,
+  "original": "original.jpg",
+  "remaster": "remaster.png"
+}
+```
+
+3. Run the whole pipeline:
+
+```
+npm run all      # derivatives -> build -> verify
+npm run serve    # preview at http://127.0.0.1:8899/
+```
+
+You never enter image dimensions or aspect ratios. The build reads them from the files, so
+they cannot drift out of sync with the images the way hand-typed values did.
+
+### `lore` and `lorePending`
+
+- `lore`: the author's own lore. Renders as a paragraph.
+- `lorePending: true`: renders the "Lore awaiting author notes" badge.
+
+Where lore is pending, `onMap` should describe only what is **visibly drawn**, not invented
+backstory - the author owns the canon.
 
 ### Page numbers
 
 Page numbers are accession numbers: a map keeps the number it was given when it entered the
 archive, forever. Never renumber existing pages when inserting a new one - append the next
-free number instead, so any reference to "page 006" stays valid.
+free number, so any reference to "page 006" stays valid.
 
-### Aspect ratios in use
+## How images are served
 
-| Page | Map | `--ar` |
-|---|---|---|
-| 001 | Dragonfall | 1.387 (landscape) |
-| 002 | Dimrock | 0.849 |
-| 003 | Dragonfall District | 0.700 |
-| 004 | Goregrond District | 0.725 |
-| 005 | Helmsvard District | 0.705 |
-| 006 | Stormwind District | 0.703 |
-| 007 | Truessant District | 1.420 (landscape) |
-| 008 | Waveswater | 0.734 |
-| 009 | West Haven District | 0.700 |
+Two tiers, which is what keeps the site inside GitHub's limits:
 
-## Lore status
+| Tier | File | Used by | Size |
+|---|---|---|---|
+| Display | `display-original.webp`, `display-remaster.webp` | the compare slider and hero | ~350 KB each |
+| Master | `original.*`, `remaster.png` | the full-resolution viewer only, on click | 2-4 MB each |
 
-Pages showing a "lore awaiting author notes" badge describe only what is visibly drawn on the
-map. Replace that badge with the author's own lore as it arrives.
+The masters are never fetched on page load. Measured full-scroll page transfer is **6.4 MB**
+against **52.4 MB** before the split - an 88% reduction, taking the site from roughly 1,950
+to about 15,900 full page views per month against Pages' 100 GB/month soft bandwidth limit.
+
+Derivatives are 1400 px on the long edge (the slider is at most ~700 CSS px wide, so this
+covers 2x DPR) at WebP quality 82. Re-runs skip anything already up to date; use
+`npm run derivatives -- --force` to rebuild everything.
+
+### Storage ceiling still to solve
+
+The derivative split fixed bandwidth, not storage. The masters still ship in the published
+site so the viewer can reach them, so the site grows about 5.8 MB per map. **GitHub Pages
+caps a published site at 1 GB**, which lands somewhere around 170 maps. When that
+approaches, move the masters out of the published tree - GitHub Releases or a separate
+archive repo - and point the `data-view` URLs at their new home.
+
+## File naming rules
+
+GitHub Pages serves from a case-sensitive Linux filesystem, so a mismatch that works on
+Windows will 404 in production.
+
+- **All lowercase.** `original.jpg`, not `Original.JPG`.
+- **No spaces in directory names.** Use hyphens: `west-haven-district`.
+- Keep the extension the file actually is.
+- `npm run serve` matches paths case-sensitively on purpose, so this class of bug fails
+  locally instead of only in production.
+
+## Checks
+
+`npm run verify` asserts that every referenced asset resolves case-sensitively, that no file
+is orphaned, that every `width`/`height` matches real pixels, that each `--ar` matches its
+base image, that the slider layers are the right way round (base = remaster, overlay =
+original, so "Original" labels the left side), that sliders use only the display tier and
+the viewer only masters, that ids are unique and tags balanced.
+
+## Known gaps
+
+- **The compare sliders are pointer-only.** There is no keyboard access to the divider.
+- The theme choice is not persisted, and light-preference systems see a brief dark flash.
+- The viewer does not trap focus or restore it to the triggering button on close.
 
 ## Hosting
 
-Hosted via GitHub Pages. Enable Pages in repo Settings > Pages > Deploy from main branch root.
+Hosted via GitHub Pages, deploying from `main` branch root. `index.html` is committed
+because Pages serves it as a static file - there is no build step on GitHub's side.
