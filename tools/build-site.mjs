@@ -49,20 +49,28 @@ async function resolveRenditions(continentId, map, renditionConfig) {
     );
     if (!masterFile) continue; // rendition not produced for this map yet
 
-    const large = `display-${cfg.basename}.webp`;
-    const narrow = `display-${cfg.basename}-700.webp`;
-    if (!entries.includes(large) || !entries.includes(narrow)) {
+    // Four variants per rendition: two widths x two formats.
+    const want = {
+      webpLarge: `display-${cfg.basename}.webp`,
+      webpNarrow: `display-${cfg.basename}-700.webp`,
+      avifLarge: `display-${cfg.basename}.avif`,
+      avifNarrow: `display-${cfg.basename}-700.avif`,
+    };
+    const absent = Object.values(want).filter((f) => !entries.includes(f));
+    if (absent.length) {
       throw new Error(
-        `${relBase}: ${masterFile} has no display tier. Run: npm run derivatives`
+        `${relBase}: ${masterFile} is missing ${absent.join(', ')}. Run: npm run derivatives`
       );
     }
 
-    const [master, display, narrowImg] = await Promise.all([
+    const [master, display, narrowImg, avifLarge, avifNarrow] = await Promise.all([
       imageInfo(path.join(dir, masterFile), `${relBase}/${masterFile}`),
-      imageInfo(path.join(dir, large), `${relBase}/${large}`),
-      imageInfo(path.join(dir, narrow), `${relBase}/${narrow}`),
+      imageInfo(path.join(dir, want.webpLarge), `${relBase}/${want.webpLarge}`),
+      imageInfo(path.join(dir, want.webpNarrow), `${relBase}/${want.webpNarrow}`),
+      imageInfo(path.join(dir, want.avifLarge), `${relBase}/${want.avifLarge}`),
+      imageInfo(path.join(dir, want.avifNarrow), `${relBase}/${want.avifNarrow}`),
     ]);
-    out.push({ ...cfg, master, display, narrow: narrowImg });
+    out.push({ ...cfg, master, display, narrow: narrowImg, avifLarge, avifNarrow });
   }
   return out;
 }
@@ -99,11 +107,22 @@ function comparePane(map, rends) {
   // Newest art wins the slider by default; older passes stay one click away.
   const active = versions[versions.length - 1];
 
-  const imgAttrs = (r, alt, cls) =>
-    `<img${cls ? ` class="${cls}"` : ''} src="${esc(r.display.rel)}"
-                   srcset="${esc(srcsetAttr(r.narrow, r.display))}"
-                   sizes="${esc(SLIDER_SIZES)}"
-                   alt="${esc(alt)}" width="${r.display.w}" height="${r.display.h}" loading="lazy" decoding="async"`;
+  /**
+   * <picture> so AVIF is offered first with WebP as the fallback. srcset alone
+   * cannot do format negotiation - the browser picks purely on width and DPR,
+   * so an AVIF candidate would simply break on a browser that cannot decode it.
+   */
+  const picture = (r, alt, cls) => `<picture>
+                <source type="image/avif" srcset="${esc(
+                  srcsetAttr(r.avifNarrow, r.avifLarge)
+                )}" sizes="${esc(SLIDER_SIZES)}">
+                <img${cls ? ` class="${cls}"` : ''} src="${esc(r.display.rel)}"
+                     srcset="${esc(srcsetAttr(r.narrow, r.display))}"
+                     sizes="${esc(SLIDER_SIZES)}"
+                     alt="${esc(alt)}" width="${r.display.w}" height="${
+    r.display.h
+  }" loading="lazy" decoding="async">
+              </picture>`;
 
   // Everything the switcher needs to repoint the slider and the viewer button.
   const versionButtons = versions
@@ -113,6 +132,7 @@ function comparePane(map, rends) {
                       data-label="${esc(r.label)}"
                       data-src="${esc(r.display.rel)}"
                       data-srcset="${esc(srcsetAttr(r.narrow, r.display))}"
+                      data-avif="${esc(srcsetAttr(r.avifNarrow, r.avifLarge))}"
                       data-w="${r.display.w}" data-h="${r.display.h}"
                       data-ar="${(r.display.w / r.display.h).toFixed(3)}"
                       data-master="${esc(r.master.rel)}"
@@ -137,9 +157,9 @@ ${versionButtons}
   return `
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-${esc(map.slug)}">
-              ${imgAttrs(active, `${active.label} map of ${map.title}`, 'img-base')}>
+              ${picture(active, `${active.label} map of ${map.title}`, 'img-base')}
               <div class="img-after">
-                ${imgAttrs(base, `Original hand-drawn ${map.title} map scan`)}>
+                ${picture(base, `Original hand-drawn ${map.title} map scan`)}
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -178,10 +198,49 @@ function factRow(label, value) {
   }</div>`;
 }
 
+/**
+ * Height estimate for contain-intrinsic-size, per map.
+ *
+ * A single shared estimate is wrong for both orientations at once - a landscape
+ * map is roughly half the height of a portrait one - and the error shows up as
+ * the scrollbar jumping while you scroll. One value for nine maps drifted
+ * ~1,000px; at 400 maps that would be tens of thousands.
+ *
+ * Mirrors the real layout: the visual column is min(700, 96vh * ar) wide at a
+ * nominal 900px viewport, so its height is that over ar, plus the actions row
+ * and card padding. The facing meta column can be the taller of the two on a
+ * short landscape map, so take whichever wins.
+ */
+function intrinsicHeight(map, ar, hasSwitcher) {
+  const prose = ((map.onMap ?? '') + (map.lore ?? '')).length;
+
+  // --- desktop: two columns, so the card is as tall as the taller one ---
+  const NOMINAL_VH = 900;
+  const visualWidth = Math.min(700, 0.96 * NOMINAL_VH * ar);
+  // Measured against real rendered heights: 60 actions + 48 padding alone
+  // under-shot every map by 60-150px, so the tags row and gaps get 40px too.
+  const chrome = 60 + 48 + 40 + (hasSwitcher ? 52 : 0);
+  const visual = visualWidth / ar + chrome;
+  const meta = 510 + Math.ceil(prose / 55) * 27 + chrome;
+  const desktop = Math.round(Math.max(visual, meta));
+
+  // --- mobile: one column, so the two stack and the card is their sum ---
+  // Below 980px the compare wrap is 100vw - 82px, measured 332px at a 414px
+  // viewport, and text wraps at roughly 38 characters. Constants fitted against
+  // the real heights of all nine maps; residual is under ~50px each.
+  const MOBILE_WRAP = 332;
+  const mVisual = MOBILE_WRAP / ar + 59 + (hasSwitcher ? 96 : 0);
+  const mMeta = 670 + Math.ceil(prose / 38) * 29;
+  const mobile = Math.round(mVisual + mMeta + 73);
+
+  return { desktop, mobile };
+}
+
 function mapArticle(map, rends) {
   const active = rends.filter((r) => r.role !== 'base').at(-1);
   const ar = (active.display.w / active.display.h).toFixed(3);
   const pageNo = String(map.page).padStart(3, '0');
+  const cis = intrinsicHeight(map, +ar, rends.length > 2);
   const tagAttr = map.tags.join('|');
 
   const description = map.onMap
@@ -194,7 +253,7 @@ function mapArticle(map, rends) {
 
   return `
         <!-- ${map.title.toUpperCase()} -->
-        <article class="atlas-page" id="${esc(map.slug)}" style="--ar:${ar}" data-tags="${esc(tagAttr)}" data-title="${esc(map.title)}">${comparePane(map, rends)}
+        <article class="atlas-page" id="${esc(map.slug)}" style="--ar:${ar};--cis:${cis.desktop}px;--cis-m:${cis.mobile}px" data-tags="${esc(tagAttr)}" data-title="${esc(map.title)}">${comparePane(map, rends)}
           <div class="page-meta">
             <div class="page-no"><a href="#${esc(map.slug)}">Page ${pageNo} - ${esc(map.title)}</a></div>
             <div>
@@ -289,6 +348,7 @@ const STYLES = `
     .hero-book{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--space-8);align-items:center;background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 92%,white 8%),var(--color-surface));border:1px solid var(--color-border);box-shadow:var(--shadow-lg);border-radius:var(--radius-xl);overflow:hidden}
     .hero-copy{padding:clamp(1.5rem,3vw,3rem)}
     .hero-aside{padding:clamp(1rem,2vw,1.5rem);background:repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(0,0,0,.03) 28px,rgba(0,0,0,.03) 29px),var(--color-surface-2);height:100%;display:flex;align-items:center;justify-content:center}
+    .hero-aside picture{display:block;width:100%;max-width:520px}
     .hero-aside img{width:100%;max-width:520px;aspect-ratio:4/3;object-fit:cover;border-radius:var(--radius-lg);border:1px solid var(--color-border);box-shadow:var(--shadow-sm)}
     .intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-top:var(--space-6)}
     .intro-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
@@ -334,6 +394,14 @@ const STYLES = `
     .filter-empty{margin:0;color:var(--color-text-muted)}
     .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;--ar:1.333}
     .atlas-page::before{content:"";position:absolute;top:0;bottom:0;left:calc(58% - 12px);width:24px;background:linear-gradient(90deg,rgba(0,0,0,.09),rgba(255,255,255,.06) 35%,rgba(0,0,0,.10));opacity:.22;pointer-events:none}
+    /* Skip layout, paint and decoded-image memory for maps that are off screen.
+       The page is ~12,000px tall at 9 maps, and every map holds two large
+       decoded bitmaps, which is what makes a long atlas heavy on a phone rather
+       than the transfer size. contain-intrinsic-size keeps the scrollbar and
+       anchor offsets stable while a page is skipped, and the auto keyword lets
+       the real size take over once it has been rendered. Content stays findable
+       and anchor-linkable, unlike display:none. */
+    .atlas-page{content-visibility:auto;contain-intrinsic-size:auto var(--cis,1100px)}
     /* align-content:start stops the auto rows from stretching when the facing
        meta column is taller than the map - otherwise .compare-wrap grows past
        the image and the Original/Remastered labels float in dead space. */
@@ -342,7 +410,11 @@ const STYLES = `
        so portrait and landscape maps both display whole. The vh cap stops tall
        portrait maps from running off the screen. */
     .compare-wrap{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border);background:var(--color-surface-2);touch-action:pan-y;user-select:none;-webkit-user-select:none;width:100%;max-width:min(100%, calc(96vh * var(--ar)));margin-inline:auto}
-    .compare-wrap > img.img-base{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;pointer-events:none}
+    /* Descendant selectors, not direct-child: each image sits inside a <picture>
+       so AVIF can be offered ahead of WebP. picture is inline by default, which
+       would leave a baseline gap under the map, hence display:block. */
+    .compare-wrap picture{display:block}
+    .compare-wrap img.img-base{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;pointer-events:none}
     .img-after{position:absolute;top:0;left:0;bottom:0;width:50%;overflow:hidden}
     .img-after img{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;max-width:none;pointer-events:none}
     .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:3px;background:rgba(255,255,255,.88);transform:translateX(-50%);cursor:ew-resize;z-index:5;box-shadow:0 0 8px rgba(0,0,0,.45)}
@@ -385,7 +457,9 @@ const STYLES = `
     .viewer-btn:hover{border-color:var(--color-primary);color:#fff}
     .viewer-close{position:absolute;top:var(--space-4);right:var(--space-4);z-index:2}
     .viewer-hint{position:absolute;top:var(--space-4);left:var(--space-4);padding:.4rem .7rem;border-radius:999px;background:rgba(24,18,12,.8);color:#baa98f;font-size:var(--text-xs);letter-spacing:.06em}
-    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}}
+    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}
+    /* single column stacks the two halves, so the card is much taller here */
+    .atlas-page{contain-intrinsic-size:auto var(--cis-m,1700px)}}
     @media(max-width:700px){.section-top{display:grid}.nav{align-items:flex-start;flex-direction:column}.nav-links{width:100%}.notes{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}`;
 
@@ -453,6 +527,9 @@ const SCRIPT = String.raw`
         const page    = group.closest('.atlas-page');
         const wrap    = page.querySelector('.compare-wrap');
         const baseImg = wrap.querySelector('img.img-base');
+        /* The AVIF <source> wins over the img's own srcset, so swapping only
+           the img would leave an AVIF-capable browser showing the old art. */
+        const baseAvif = baseImg.closest('picture')?.querySelector('source[type="image/avif"]');
         const label   = wrap.querySelector('[data-active-label]');
         const openBtn = page.querySelector('[data-open-active]');
         const noun    = openBtn?.querySelector('[data-active-noun]');
@@ -468,8 +545,9 @@ const SCRIPT = String.raw`
             b.setAttribute('aria-pressed', String(on));
           });
 
-          /* Set srcset before src so the browser resolves the candidate list
-             once, rather than fetching src and then re-picking. */
+          /* AVIF source first, then the img's own srcset, then src - the
+             browser re-runs selection once the whole set is consistent. */
+          if (baseAvif) baseAvif.srcset = d.avif;
           baseImg.srcset = d.srcset;
           baseImg.src    = d.src;
           baseImg.width  = d.w;
@@ -505,6 +583,7 @@ const SCRIPT = String.raw`
       const vZoom    = document.getElementById('viewerZoom');
       const vDownload= document.getElementById('viewerDownload');
       const vClose   = document.getElementById('viewerClose');
+      const vUpgrade = document.getElementById('viewerUpgrade');
 
       let scale = 1, fit = 1, tx = 0, ty = 0;
       const pointers = new Map();
@@ -536,24 +615,94 @@ const SCRIPT = String.raw`
         scale = k; clamp(); render();
       }
 
+      /* On a narrow screen the master is the single most expensive thing on the
+         page - up to 4.2 MB for one tap, on the connection least able to afford
+         it. Open the display image the page has already downloaded instead:
+         instant, zero extra bytes, and enough pixels to zoom usefully on a
+         phone. Full resolution stays one deliberate tap away. */
+      const NARROW_VIEWPORT = 820;
+      const preferPreview = () => window.innerWidth <= NARROW_VIEWPORT;
+      let pendingMaster = null;
+
+      function showUpgrade(btn) {
+        pendingMaster = {
+          src: btn.dataset.view,
+          dims: btn.dataset.dims || '',
+          size: btn.dataset.size || '',
+        };
+        vUpgrade.hidden = false;
+        vUpgrade.textContent = 'Load full resolution (' + pendingMaster.size + ')';
+      }
+
+      function loadMaster() {
+        if (!pendingMaster) return;
+        const { src, dims, size } = pendingMaster;
+        vUpgrade.hidden = true;
+        vUpgrade.textContent = 'Loading...';
+        pendingMaster = null;
+        vImg.addEventListener('load', () => { fitToStage(); reportDims(); }, { once: true });
+        vImg.src = src;
+        vDims.textContent = dims;
+        vSize.textContent = size;
+      }
+
+      /* Reuse the exact file the page already downloaded, rather than a fixed
+         URL: the browser may have chosen AVIF or WebP, and the narrow or large
+         tier, so only currentSrc is guaranteed to be a cache hit. */
+      function cachedPreviewFor(btn) {
+        const page = btn.closest('.atlas-page');
+        if (!page) return null;
+        const el = btn.hasAttribute('data-open-active')
+          ? page.querySelector('img.img-base')
+          : page.querySelector('.img-after img');
+        if (!el || !el.currentSrc || !el.naturalWidth) return null;
+        /* Only the URL is taken from here. naturalWidth on a srcset-selected
+           image is density-corrected to CSS pixels - a 700w file in a 334px
+           slot reports 334 - so the real size is read off the viewer's own
+           <img>, which has no srcset, once it has loaded. */
+        return { src: el.currentSrc };
+      }
+
+      /** True file dimensions: the viewer img carries no srcset. */
+      function reportDims() {
+        if (vImg.naturalWidth) vDims.textContent = vImg.naturalWidth + '×' + vImg.naturalHeight;
+      }
+
       function openViewer(btn) {
         vImg.removeAttribute('src');
-        vImg.src = btn.dataset.view;
+        vImg.removeAttribute('srcset');
+        vUpgrade.hidden = true;
+        pendingMaster = null;
+
+        const preview = preferPreview() ? cachedPreviewFor(btn) : null;
+
         vImg.alt = btn.dataset.alt || '';
-        vDims.textContent = btn.dataset.dims || '';
-        vSize.textContent = btn.dataset.size || '';
+        if (preview) {
+          vImg.src = preview.src;
+          vDims.textContent = '';
+          vSize.textContent = 'preview';
+          showUpgrade(btn);
+        } else {
+          vImg.src = btn.dataset.view;
+          vDims.textContent = btn.dataset.dims || '';
+          vSize.textContent = btn.dataset.size || '';
+        }
+        /* The download link always points at the true master, whatever is shown. */
         vDownload.href = btn.dataset.view;
+
         viewer.classList.add('open');
         viewer.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        if (vImg.complete && vImg.naturalWidth) fitToStage();
-        else vImg.addEventListener('load', fitToStage, { once: true });
+        if (vImg.complete && vImg.naturalWidth) { fitToStage(); reportDims(); }
+        else vImg.addEventListener('load', () => { fitToStage(); reportDims(); }, { once: true });
       }
       function closeViewer() {
         viewer.classList.remove('open');
         viewer.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
         vImg.removeAttribute('src');
+        vUpgrade.hidden = true;
+        pendingMaster = null;
         pointers.clear();
       }
 
@@ -573,6 +722,7 @@ const SCRIPT = String.raw`
         btn.addEventListener('click', () => { openViewer(btn); countViewerOpen(btn); });
       });
       vClose.addEventListener('click', closeViewer);
+      vUpgrade.addEventListener('click', loadMaster);
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && viewer.classList.contains('open')) closeViewer();
       });
@@ -781,13 +931,18 @@ ${introCards
           </div>
         </div>
         <div class="hero-aside">
-          <img src="${esc(hero._active.display.rel)}" srcset="${esc(
+          <picture>
+            <source type="image/avif" srcset="${esc(
+              srcsetAttr(hero._active.avifNarrow, hero._active.avifLarge)
+            )}" sizes="${esc(HERO_SIZES)}">
+            <img src="${esc(hero._active.display.rel)}" srcset="${esc(
     srcsetAttr(hero._active.narrow, hero._active.display)
   )}" sizes="${esc(HERO_SIZES)}" alt="${esc(hero._active.label)} map of ${esc(
     hero.title
   )}" width="${hero._active.display.w}" height="${
     hero._active.display.h
   }" loading="eager" fetchpriority="high">
+          </picture>
         </div>
       </div>
     </section>
@@ -850,6 +1005,7 @@ ${notes.map((n) => `        <div class="note"><strong>${esc(n.title)}</strong><b
         <span>Zoom <span id="viewerZoom">100%</span></span>
       </div>
       <div class="viewer-actions">
+        <button class="viewer-btn" type="button" id="viewerUpgrade" hidden>Load full resolution</button>
         <a class="viewer-btn" id="viewerDownload" href="" download>Download full resolution</a>
       </div>
     </div>

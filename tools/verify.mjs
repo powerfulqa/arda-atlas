@@ -34,8 +34,10 @@ async function walk(dir, base = dir, out = []) {
 console.log('Asset references');
 const onDisk = new Set([...(await walk(path.join(ROOT, 'maps'))), ...(await walk(path.join(ROOT, 'assets')))]);
 // srcset holds "url 700w, url 1400w", so it needs splitting rather than a
-// single-value match - otherwise the narrow tier reads as orphaned.
-const srcsetRefs = [...html.matchAll(/srcset="([^"]+)"/g)].flatMap((m) =>
+// single-value match - otherwise the narrow tier reads as orphaned. data-avif
+// carries the same shape for renditions the switcher can select but that are
+// not currently shown.
+const srcsetRefs = [...html.matchAll(/(?:srcset|data-avif)="([^"]+)"/g)].flatMap((m) =>
   m[1].split(',').map((c) => c.trim().split(/\s+/)[0])
 );
 const refs = [
@@ -66,9 +68,11 @@ for (const m of html.matchAll(/src="((?:maps|assets)\/[^"]+)"[^>]*?width="(\d+)"
 note(dimBad.length === 0, `${dimOk} width/height attributes match real pixels`, dimBad.join('; '));
 
 console.log('\nCompare slider integrity');
+// Each image now sits inside <picture><source ...><img ...>, so the gaps have
+// to tolerate arbitrary markup rather than just whitespace.
 const panes = [
   ...html.matchAll(
-    /id="([a-z0-9-]+)" style="--ar:([\d.]+)"[\s\S]*?<img class="img-base" src="([^"]+)"[\s\S]*?<div class="img-after">\s*<img src="([^"]+)"/g
+    /id="([a-z0-9-]+)" style="--ar:([\d.]+)[^"]*"[\s\S]*?<img class="img-base" src="([^"]+)"[\s\S]*?<div class="img-after">[\s\S]*?<img src="([^"]+)"/g
   ),
 ];
 note(panes.length === 9, `found ${panes.length} compare panes`);
@@ -178,6 +182,52 @@ note(descriptorBad.length === 0, 'every srcset descriptor matches the real file 
 
 const narrowCount = [...html.matchAll(/display-[a-z]+-700\.webp/g)].length;
 note(narrowCount > 0, `narrow 700w tier referenced ${narrowCount} times`);
+
+// AVIF must be offered via <picture><source>, never as a bare srcset candidate:
+// srcset selects on width and DPR only, so a browser without AVIF support would
+// pick an AVIF it cannot decode and show a broken image.
+const pictures = [...html.matchAll(/<picture>[\s\S]*?<\/picture>/g)].map((m) => m[0]);
+note(pictures.length > 0, `${pictures.length} <picture> elements`);
+note(
+  pictures.every((p) => /<source type="image\/avif" srcset="[^"]+"[^>]*sizes="/.test(p)),
+  'every <picture> offers an AVIF source with its own sizes'
+);
+note(
+  pictures.every((p) => /<img\b[^>]*src="[^"]+\.webp"/.test(p)),
+  'every <picture> falls back to a WebP <img>'
+);
+const bareAvifImg = [...html.matchAll(/<img\b[^>]*\.avif[^>]*>/g)];
+note(bareAvifImg.length === 0, 'no <img> points directly at an AVIF', `${bareAvifImg.length} do`);
+
+const avifDescBad = [];
+for (const set of [...html.matchAll(/(?:<source type="image\/avif" srcset|data-avif)="([^"]+)"/g)]) {
+  for (const cand of set[1].split(',').map((s) => s.trim())) {
+    const [rel, desc] = cand.split(/\s+/);
+    if (!onDisk.has(rel)) { avifDescBad.push(`${rel} missing`); continue; }
+    const meta = await sharp(path.join(ROOT, rel)).metadata();
+    if (meta.width !== parseInt(desc, 10)) {
+      avifDescBad.push(`${rel} declared ${desc}, is ${meta.width}w`);
+    }
+  }
+}
+note(avifDescBad.length === 0, 'every AVIF descriptor matches its real file width', avifDescBad.join('; '));
+
+console.log('\nOffscreen rendering');
+// content-visibility only pays off if every page carries an intrinsic size for
+// both layouts; without one the scrollbar jumps as maps render in.
+const cisPages = [...html.matchAll(/class="atlas-page" id="([a-z0-9-]+)" style="([^"]*)"/g)];
+const cisMissing = cisPages
+  .filter(([, , style]) => !/--cis:\d+px/.test(style) || !/--cis-m:\d+px/.test(style))
+  .map(([, id]) => id);
+note(
+  cisPages.length === 9 && cisMissing.length === 0,
+  `all ${cisPages.length} maps carry desktop and mobile intrinsic sizes`,
+  cisMissing.join(', ')
+);
+note(
+  /content-visibility:auto/.test(html) && /contain-intrinsic-size:auto var\(--cis/.test(html),
+  'content-visibility is wired to the per-map estimate'
+);
 
 console.log('\nImage tier routing');
 const sliderMasters = [...html.matchAll(/class="img-base" src="([^"]+)"|<div class="img-after">\s*<img src="([^"]+)"/g)]

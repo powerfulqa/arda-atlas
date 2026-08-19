@@ -100,58 +100,80 @@ free number, so any reference to "page 006" stays valid.
 
 ## How images are served
 
-Three tiers, which is what keeps the site inside GitHub's limits:
+Four display variants per rendition (two widths x two formats), plus the master:
 
-| Tier | File | Used by | Size |
-|---|---|---|---|
-| Narrow | `display-*-700.webp` | 1x displays, via `srcset` | ~75-285 KB |
-| Large | `display-*.webp` | 2x and 3x displays, via `srcset` | ~180-520 KB |
-| Master | `original.*`, `remaster.png`, `retouched.png` | the full-resolution viewer only, on click | 2-4 MB |
+| Tier | File | Used by |
+|---|---|---|
+| Narrow | `display-*-700.avif` / `.webp` | 1x displays |
+| Large | `display-*.avif` / `.webp` | 2x and 3x displays |
+| Master | `original.*`, `remaster.png`, `retouched.png` | the full-resolution viewer |
 
-The masters are never fetched on page load. Measured full-scroll transfer:
+AVIF is offered first through `<picture>`; WebP is the fallback for the ~5% of browsers
+without AVIF. Masters are never fetched on page load.
 
-| Visitor | Image bytes |
-|---|---|
-| Before any of this | 52.4 MB |
-| 1x display (most desktops) | **3.1 MB** |
-| 2x / 3x display | 6.3 MB |
+Measured full-scroll transfer, at nine maps:
 
-That is about 33,000 full-scroll views per month for 1x visitors, or 16,000 for high-DPR
-ones, against Pages' 100 GB/month soft bandwidth limit.
+| Visitor | Before any of this | Now |
+|---|---|---|
+| 1x desktop | 52.4 MB | **1.81 MB** |
+| 3x phone | 52.4 MB | **3.65 MB** |
 
-### Why two display widths
+### Why two widths
 
 The compare slider is at most ~700 CSS px wide on desktop (measured 696-699; `.wrap` caps
-at 1320 px so it does not grow) and ~334 px on a phone. A 1x display was therefore being
-sent an image roughly twice as wide as it could possibly show.
+at 1320 px so it does not grow) and ~334 px on a phone, so a 1x display was being sent an
+image roughly twice as wide as it could show.
 
 The narrow tier is generated **by width**, unlike the large tier which fits inside a
 1400 px box - `srcset` descriptors are widths, and a portrait map fitted to a 1400 box is
 only ~984 px wide. Adding a narrow tier rather than regenerating the large one by width
 means high-DPR visitors download exactly what they did before, instead of more.
 
-`sizes` is not optional here. With `w` descriptors and no `sizes`, the browser assumes
-100vw and picks the largest candidate, which would undo the whole thing. It is set to
+`sizes` is not optional. With `w` descriptors and no `sizes`, the browser assumes 100vw and
+picks the largest candidate, undoing the whole thing. It is set to
 `(max-width: 980px) calc(100vw - 80px), 700px`, matching the real grid.
 
-WebP quality 82. Re-runs skip anything already up to date; `npm run derivatives -- --force`
-rebuilds everything.
+AVIF must go in `<picture><source>`, never as a bare `srcset` candidate: `srcset` selects
+on width and DPR only, so a browser without AVIF would pick one it cannot decode and show a
+broken image. `npm run verify` fails if any `<img>` points straight at an AVIF.
+
+### Mobile: the viewer opens what is already cached
+
+Tapping a map used to pull the master - up to 4.2 MB, on the connection least able to
+afford it. Below 820 px the viewer instead shows the image the page **has already
+downloaded**, taken from that slider image's `currentSrc` so it is whatever the browser
+actually chose (AVIF or WebP, narrow or large). Measured: **0 KB to open**. Full resolution
+is one deliberate tap away, and the Download button always points at the true master.
+
+One subtlety worth knowing if you touch this: `naturalWidth` on a `srcset`-selected image is
+density-corrected to CSS pixels - a 700w file in a 334px slot reports 334 - so real file
+dimensions are read from the viewer's own `<img>`, which carries no `srcset`.
+
+### Offscreen maps are not rendered
+
+`.atlas-page` uses `content-visibility: auto`, so the browser skips layout, paint and
+decoded-image memory for maps that are off screen. On a long atlas that memory, not the
+transfer size, is what makes a phone struggle.
+
+`contain-intrinsic-size` is computed **per map, per layout**, from the aspect ratio and the
+length of its prose, and emitted as `--cis` / `--cis-m`. One shared estimate drifted ~1,000
+px over nine maps as they rendered in; per-map values bring that to 42 px on desktop (0.3%)
+and 1.5% on mobile, where the single-column layout makes cards far taller. At 400 maps a
+shared estimate would have meant tens of thousands of pixels of scrollbar creep.
 
 ### Room left, if it is ever wanted
 
-- **AVIF** alongside WebP would cut a further ~48% (measured: 6.29 MB to 3.17 MB at the
-  same dimensions), at ~0.39s per image of build time. This is the main lever left for
-  **mobile**, which still gets the large tier because a 3x phone needs ~1000 px.
-- **A right-sized hero.** It renders at 520x390 but the narrow tier is 700 px wide, so it
-  is still ~2x oversized. A dedicated 520 px tier would take it to 75 KB WebP or 37 KB AVIF.
+- **A right-sized hero.** It renders at 520x390 but takes the 700 px tier, so it is still
+  ~1.4x oversized. A dedicated 520 px tier would trim roughly 40 KB.
 - **Self-hosted fonts** would remove two third-party origins and a render-blocking
-  stylesheet from the critical path (currently 83.9 KB from `fonts.gstatic.com`).
-- **`content-visibility: auto`** on `.atlas-page` would let the browser skip layout and
-  paint for offscreen maps. Minor at 9 maps, significant at 400.
+  stylesheet from the critical path (currently 83.9 KB from `fonts.gstatic.com`). Worth
+  more on mobile, where the extra DNS and TLS round trips cost most.
+- **A middle ~1000 px tier.** A 3x phone needs ~1000 px, and for landscape maps it
+  currently takes the 1400 px tier. Portrait maps are already close to right, so this only
+  helps the minority of landscape maps.
 
-Measured and deliberately **not** done: minifying the HTML/CSS/JS (70 KB raw is 15.3 KB
-gzipped, so there is nothing to win) and cache tuning (Pages hardcodes `max-age=600` and
-offers no way to change it).
+Measured and deliberately **not** done: minifying HTML/CSS/JS (70 KB raw is 15.3 KB
+gzipped) and cache tuning (Pages hardcodes `max-age=600` with no override).
 
 ### Storage ceiling still to solve
 

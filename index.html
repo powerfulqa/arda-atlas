@@ -51,6 +51,7 @@
     .hero-book{display:grid;grid-template-columns:1.05fr .95fr;gap:var(--space-8);align-items:center;background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 92%,white 8%),var(--color-surface));border:1px solid var(--color-border);box-shadow:var(--shadow-lg);border-radius:var(--radius-xl);overflow:hidden}
     .hero-copy{padding:clamp(1.5rem,3vw,3rem)}
     .hero-aside{padding:clamp(1rem,2vw,1.5rem);background:repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(0,0,0,.03) 28px,rgba(0,0,0,.03) 29px),var(--color-surface-2);height:100%;display:flex;align-items:center;justify-content:center}
+    .hero-aside picture{display:block;width:100%;max-width:520px}
     .hero-aside img{width:100%;max-width:520px;aspect-ratio:4/3;object-fit:cover;border-radius:var(--radius-lg);border:1px solid var(--color-border);box-shadow:var(--shadow-sm)}
     .intro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-top:var(--space-6)}
     .intro-card{padding:var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
@@ -96,6 +97,14 @@
     .filter-empty{margin:0;color:var(--color-text-muted)}
     .atlas-page{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:var(--space-6);padding:var(--space-6);background:linear-gradient(180deg,color-mix(in srgb,var(--color-surface) 94%,white 6%),var(--color-surface));border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);position:relative;overflow:hidden;--ar:1.333}
     .atlas-page::before{content:"";position:absolute;top:0;bottom:0;left:calc(58% - 12px);width:24px;background:linear-gradient(90deg,rgba(0,0,0,.09),rgba(255,255,255,.06) 35%,rgba(0,0,0,.10));opacity:.22;pointer-events:none}
+    /* Skip layout, paint and decoded-image memory for maps that are off screen.
+       The page is ~12,000px tall at 9 maps, and every map holds two large
+       decoded bitmaps, which is what makes a long atlas heavy on a phone rather
+       than the transfer size. contain-intrinsic-size keeps the scrollbar and
+       anchor offsets stable while a page is skipped, and the auto keyword lets
+       the real size take over once it has been rendered. Content stays findable
+       and anchor-linkable, unlike display:none. */
+    .atlas-page{content-visibility:auto;contain-intrinsic-size:auto var(--cis,1100px)}
     /* align-content:start stops the auto rows from stretching when the facing
        meta column is taller than the map - otherwise .compare-wrap grows past
        the image and the Original/Remastered labels float in dead space. */
@@ -104,7 +113,11 @@
        so portrait and landscape maps both display whole. The vh cap stops tall
        portrait maps from running off the screen. */
     .compare-wrap{position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--color-border);background:var(--color-surface-2);touch-action:pan-y;user-select:none;-webkit-user-select:none;width:100%;max-width:min(100%, calc(96vh * var(--ar)));margin-inline:auto}
-    .compare-wrap > img.img-base{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;pointer-events:none}
+    /* Descendant selectors, not direct-child: each image sits inside a <picture>
+       so AVIF can be offered ahead of WebP. picture is inline by default, which
+       would leave a baseline gap under the map, hence display:block. */
+    .compare-wrap picture{display:block}
+    .compare-wrap img.img-base{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;pointer-events:none}
     .img-after{position:absolute;top:0;left:0;bottom:0;width:50%;overflow:hidden}
     .img-after img{display:block;width:100%;aspect-ratio:var(--ar);object-fit:cover;max-width:none;pointer-events:none}
     .compare-divider{position:absolute;top:0;bottom:0;left:50%;width:3px;background:rgba(255,255,255,.88);transform:translateX(-50%);cursor:ew-resize;z-index:5;box-shadow:0 0 8px rgba(0,0,0,.45)}
@@ -147,7 +160,9 @@
     .viewer-btn:hover{border-color:var(--color-primary);color:#fff}
     .viewer-close{position:absolute;top:var(--space-4);right:var(--space-4);z-index:2}
     .viewer-hint{position:absolute;top:var(--space-4);left:var(--space-4);padding:.4rem .7rem;border-radius:999px;background:rgba(24,18,12,.8);color:#baa98f;font-size:var(--text-xs);letter-spacing:.06em}
-    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}}
+    @media(max-width:980px){.hero-book,.atlas-page,.notes,.intro-grid,.sunder{grid-template-columns:1fr}.atlas-page::before{display:none}
+    /* single column stacks the two halves, so the card is much taller here */
+    .atlas-page{contain-intrinsic-size:auto var(--cis-m,1700px)}}
     @media(max-width:700px){.section-top{display:grid}.nav{align-items:flex-start;flex-direction:column}.nav-links{width:100%}.notes{grid-template-columns:1fr}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
@@ -183,7 +198,10 @@
           </div>
         </div>
         <div class="hero-aside">
-          <img src="maps/continent-1/dragonfall/display-retouched.webp" srcset="maps/continent-1/dragonfall/display-retouched-700.webp 700w, maps/continent-1/dragonfall/display-retouched.webp 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 520px" alt="Retouched map of Dragonfall" width="1400" height="1009" loading="eager" fetchpriority="high">
+          <picture>
+            <source type="image/avif" srcset="maps/continent-1/dragonfall/display-retouched-700.avif 700w, maps/continent-1/dragonfall/display-retouched.avif 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 520px">
+            <img src="maps/continent-1/dragonfall/display-retouched.webp" srcset="maps/continent-1/dragonfall/display-retouched-700.webp 700w, maps/continent-1/dragonfall/display-retouched.webp 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 520px" alt="Retouched map of Dragonfall" width="1400" height="1009" loading="eager" fetchpriority="high">
+          </picture>
         </div>
       </div>
     </section>
@@ -294,18 +312,24 @@
         <div class="atlas-shelf">
 
         <!-- DRAGONFALL -->
-        <article class="atlas-page" id="dragonfall" style="--ar:1.388" data-tags="City|Mining|Dragon remains|Fortified|Mountains" data-title="Dragonfall">
+        <article class="atlas-page" id="dragonfall" style="--ar:1.388;--cis:818px;--cis-m:1282px" data-tags="City|Mining|Dragon remains|Fortified|Mountains" data-title="Dragonfall">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall">
-              <img class="img-base" src="maps/continent-1/dragonfall/display-retouched.webp"
-                   srcset="maps/continent-1/dragonfall/display-retouched-700.webp 700w, maps/continent-1/dragonfall/display-retouched.webp 1400w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Retouched map of Dragonfall" width="1400" height="1009" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/dragonfall/display-retouched-700.avif 700w, maps/continent-1/dragonfall/display-retouched.avif 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/dragonfall/display-retouched.webp"
+                     srcset="maps/continent-1/dragonfall/display-retouched-700.webp 700w, maps/continent-1/dragonfall/display-retouched.webp 1400w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Retouched map of Dragonfall" width="1400" height="1009" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/dragonfall/display-original-700.avif 700w, maps/continent-1/dragonfall/display-original.avif 1280w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/dragonfall/display-original.webp"
-                   srcset="maps/continent-1/dragonfall/display-original-700.webp 700w, maps/continent-1/dragonfall/display-original.webp 1280w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Dragonfall map scan" width="1280" height="923" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/dragonfall/display-original-700.webp 700w, maps/continent-1/dragonfall/display-original.webp 1280w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Dragonfall map scan" width="1280" height="923" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -322,6 +346,7 @@
                       data-label="Remaster"
                       data-src="maps/continent-1/dragonfall/display-remaster.webp"
                       data-srcset="maps/continent-1/dragonfall/display-remaster-700.webp 700w, maps/continent-1/dragonfall/display-remaster.webp 1400w"
+                      data-avif="maps/continent-1/dragonfall/display-remaster-700.avif 700w, maps/continent-1/dragonfall/display-remaster.avif 1400w"
                       data-w="1400" data-h="1009"
                       data-ar="1.388"
                       data-master="maps/continent-1/dragonfall/remaster.png"
@@ -334,6 +359,7 @@
                       data-label="Retouched"
                       data-src="maps/continent-1/dragonfall/display-retouched.webp"
                       data-srcset="maps/continent-1/dragonfall/display-retouched-700.webp 700w, maps/continent-1/dragonfall/display-retouched.webp 1400w"
+                      data-avif="maps/continent-1/dragonfall/display-retouched-700.avif 700w, maps/continent-1/dragonfall/display-retouched.avif 1400w"
                       data-w="1400" data-h="1009"
                       data-ar="1.388"
                       data-master="maps/continent-1/dragonfall/retouched.png"
@@ -372,18 +398,24 @@
         </article>
 
         <!-- DIMROCK -->
-        <article class="atlas-page" id="dimrock" style="--ar:0.850" data-tags="Village|Valley|Ruins|Mine|Forest|River" data-title="Dimrock">
+        <article class="atlas-page" id="dimrock" style="--ar:0.850;--cis:1024px;--cis-m:1637px" data-tags="Village|Valley|Ruins|Mine|Forest|River" data-title="Dimrock">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dimrock">
-              <img class="img-base" src="maps/continent-1/dimrock/display-retouched.webp"
-                   srcset="maps/continent-1/dimrock/display-retouched-700.webp 700w, maps/continent-1/dimrock/display-retouched.webp 1156w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Retouched map of Dimrock" width="1156" height="1360" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/dimrock/display-retouched-700.avif 700w, maps/continent-1/dimrock/display-retouched.avif 1156w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/dimrock/display-retouched.webp"
+                     srcset="maps/continent-1/dimrock/display-retouched-700.webp 700w, maps/continent-1/dimrock/display-retouched.webp 1156w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Retouched map of Dimrock" width="1156" height="1360" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/dimrock/display-original-700.avif 700w, maps/continent-1/dimrock/display-original.avif 1189w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/dimrock/display-original.webp"
-                   srcset="maps/continent-1/dimrock/display-original-700.webp 700w, maps/continent-1/dimrock/display-original.webp 1189w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Dimrock map scan" width="1189" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/dimrock/display-original-700.webp 700w, maps/continent-1/dimrock/display-original.webp 1189w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Dimrock map scan" width="1189" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -400,6 +432,7 @@
                       data-label="Remaster"
                       data-src="maps/continent-1/dimrock/display-remaster.webp"
                       data-srcset="maps/continent-1/dimrock/display-remaster-700.webp 700w, maps/continent-1/dimrock/display-remaster.webp 1156w"
+                      data-avif="maps/continent-1/dimrock/display-remaster-700.avif 700w, maps/continent-1/dimrock/display-remaster.avif 1156w"
                       data-w="1156" data-h="1361"
                       data-ar="0.849"
                       data-master="maps/continent-1/dimrock/remaster.png"
@@ -412,6 +445,7 @@
                       data-label="Retouched"
                       data-src="maps/continent-1/dimrock/display-retouched.webp"
                       data-srcset="maps/continent-1/dimrock/display-retouched-700.webp 700w, maps/continent-1/dimrock/display-retouched.webp 1156w"
+                      data-avif="maps/continent-1/dimrock/display-retouched-700.avif 700w, maps/continent-1/dimrock/display-retouched.avif 1156w"
                       data-w="1156" data-h="1360"
                       data-ar="0.850"
                       data-master="maps/continent-1/dimrock/retouched.png"
@@ -452,18 +486,24 @@
         </article>
 
         <!-- DRAGONFALL DISTRICT -->
-        <article class="atlas-page" id="dragonfall-district" style="--ar:0.701" data-tags="District|Farmland|Castle|Standing stones|Windmill" data-title="Dragonfall District">
+        <article class="atlas-page" id="dragonfall-district" style="--ar:0.701;--cis:1064px;--cis-m:1778px" data-tags="District|Farmland|Castle|Standing stones|Windmill" data-title="Dragonfall District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-dragonfall-district">
-              <img class="img-base" src="maps/continent-1/dragonfall-district/display-retouched.webp"
-                   srcset="maps/continent-1/dragonfall-district/display-retouched-700.webp 700w, maps/continent-1/dragonfall-district/display-retouched.webp 981w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Retouched map of Dragonfall District" width="981" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/dragonfall-district/display-retouched-700.avif 700w, maps/continent-1/dragonfall-district/display-retouched.avif 981w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/dragonfall-district/display-retouched.webp"
+                     srcset="maps/continent-1/dragonfall-district/display-retouched-700.webp 700w, maps/continent-1/dragonfall-district/display-retouched.webp 981w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Retouched map of Dragonfall District" width="981" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/dragonfall-district/display-original-700.avif 700w, maps/continent-1/dragonfall-district/display-original.avif 980w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/dragonfall-district/display-original.webp"
-                   srcset="maps/continent-1/dragonfall-district/display-original-700.webp 700w, maps/continent-1/dragonfall-district/display-original.webp 980w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Dragonfall District map scan" width="980" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/dragonfall-district/display-original-700.webp 700w, maps/continent-1/dragonfall-district/display-original.webp 980w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Dragonfall District map scan" width="980" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -480,6 +520,7 @@
                       data-label="Remaster"
                       data-src="maps/continent-1/dragonfall-district/display-remaster.webp"
                       data-srcset="maps/continent-1/dragonfall-district/display-remaster-700.webp 700w, maps/continent-1/dragonfall-district/display-remaster.webp 980w"
+                      data-avif="maps/continent-1/dragonfall-district/display-remaster-700.avif 700w, maps/continent-1/dragonfall-district/display-remaster.avif 980w"
                       data-w="980" data-h="1400"
                       data-ar="0.700"
                       data-master="maps/continent-1/dragonfall-district/remaster.png"
@@ -492,6 +533,7 @@
                       data-label="Retouched"
                       data-src="maps/continent-1/dragonfall-district/display-retouched.webp"
                       data-srcset="maps/continent-1/dragonfall-district/display-retouched-700.webp 700w, maps/continent-1/dragonfall-district/display-retouched.webp 981w"
+                      data-avif="maps/continent-1/dragonfall-district/display-retouched-700.avif 700w, maps/continent-1/dragonfall-district/display-retouched.avif 981w"
                       data-w="981" data-h="1400"
                       data-ar="0.701"
                       data-master="maps/continent-1/dragonfall-district/retouched.png"
@@ -531,18 +573,24 @@
         </article>
 
         <!-- GOREGROND DISTRICT -->
-        <article class="atlas-page" id="goregrond-district" style="--ar:0.725" data-tags="District|Badlands|Fungal forest|Fortress|Warrens" data-title="Goregrond District">
+        <article class="atlas-page" id="goregrond-district" style="--ar:0.725;--cis:1012px;--cis-m:1666px" data-tags="District|Badlands|Fungal forest|Fortress|Warrens" data-title="Goregrond District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-goregrond-district">
-              <img class="img-base" src="maps/continent-1/goregrond-district/display-remaster.webp"
-                   srcset="maps/continent-1/goregrond-district/display-remaster-700.webp 700w, maps/continent-1/goregrond-district/display-remaster.webp 1015w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of Goregrond District" width="1015" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/goregrond-district/display-remaster-700.avif 700w, maps/continent-1/goregrond-district/display-remaster.avif 1015w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/goregrond-district/display-remaster.webp"
+                     srcset="maps/continent-1/goregrond-district/display-remaster-700.webp 700w, maps/continent-1/goregrond-district/display-remaster.webp 1015w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of Goregrond District" width="1015" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/goregrond-district/display-original-700.avif 700w, maps/continent-1/goregrond-district/display-original.avif 1015w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/goregrond-district/display-original.webp"
-                   srcset="maps/continent-1/goregrond-district/display-original-700.webp 700w, maps/continent-1/goregrond-district/display-original.webp 1015w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Goregrond District map scan" width="1015" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/goregrond-district/display-original-700.webp 700w, maps/continent-1/goregrond-district/display-original.webp 1015w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Goregrond District map scan" width="1015" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -583,18 +631,24 @@
         </article>
 
         <!-- HELMSVARD DISTRICT -->
-        <article class="atlas-page" id="helmsvard-district" style="--ar:0.705" data-tags="District|Archipelago|Port|Lighthouse|Causeway" data-title="Helmsvard District">
+        <article class="atlas-page" id="helmsvard-district" style="--ar:0.705;--cis:1012px;--cis-m:1679px" data-tags="District|Archipelago|Port|Lighthouse|Causeway" data-title="Helmsvard District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-helmsvard-district">
-              <img class="img-base" src="maps/continent-1/helmsvard-district/display-remaster.webp"
-                   srcset="maps/continent-1/helmsvard-district/display-remaster-700.webp 700w, maps/continent-1/helmsvard-district/display-remaster.webp 987w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of Helmsvard District" width="987" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/helmsvard-district/display-remaster-700.avif 700w, maps/continent-1/helmsvard-district/display-remaster.avif 987w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/helmsvard-district/display-remaster.webp"
+                     srcset="maps/continent-1/helmsvard-district/display-remaster-700.webp 700w, maps/continent-1/helmsvard-district/display-remaster.webp 987w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of Helmsvard District" width="987" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/helmsvard-district/display-original-700.avif 700w, maps/continent-1/helmsvard-district/display-original.avif 988w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/helmsvard-district/display-original.webp"
-                   srcset="maps/continent-1/helmsvard-district/display-original-700.webp 700w, maps/continent-1/helmsvard-district/display-original.webp 988w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Helmsvard District map scan" width="988" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/helmsvard-district/display-original-700.webp 700w, maps/continent-1/helmsvard-district/display-original.webp 988w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Helmsvard District map scan" width="988" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -635,18 +689,24 @@
         </article>
 
         <!-- STORMWIND DISTRICT -->
-        <article class="atlas-page" id="stormwind-district" style="--ar:0.703" data-tags="Capital|Royal seat|Cathedral|Causeway|Garrison" data-title="Stormwind District">
+        <article class="atlas-page" id="stormwind-district" style="--ar:0.703;--cis:1012px;--cis-m:1738px" data-tags="Capital|Royal seat|Cathedral|Causeway|Garrison" data-title="Stormwind District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-stormwind-district">
-              <img class="img-base" src="maps/continent-1/stormwind-district/display-remaster.webp"
-                   srcset="maps/continent-1/stormwind-district/display-remaster-700.webp 700w, maps/continent-1/stormwind-district/display-remaster.webp 984w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of Stormwind District" width="984" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/stormwind-district/display-remaster-700.avif 700w, maps/continent-1/stormwind-district/display-remaster.avif 984w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/stormwind-district/display-remaster.webp"
+                     srcset="maps/continent-1/stormwind-district/display-remaster-700.webp 700w, maps/continent-1/stormwind-district/display-remaster.webp 984w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of Stormwind District" width="984" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/stormwind-district/display-original-700.avif 700w, maps/continent-1/stormwind-district/display-original.avif 982w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/stormwind-district/display-original.webp"
-                   srcset="maps/continent-1/stormwind-district/display-original-700.webp 700w, maps/continent-1/stormwind-district/display-original.webp 982w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Stormwind District map scan" width="982" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/stormwind-district/display-original-700.webp 700w, maps/continent-1/stormwind-district/display-original.webp 982w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Stormwind District map scan" width="982" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -687,18 +747,24 @@
         </article>
 
         <!-- TRUESSANT DISTRICT -->
-        <article class="atlas-page" id="truessant-district" style="--ar:1.420" data-tags="District|Tropical|Waterfalls|Aqueduct|Hill city" data-title="Truessant District">
+        <article class="atlas-page" id="truessant-district" style="--ar:1.420;--cis:955px;--cis-m:1500px" data-tags="District|Tropical|Waterfalls|Aqueduct|Hill city" data-title="Truessant District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-truessant-district">
-              <img class="img-base" src="maps/continent-1/truessant-district/display-remaster.webp"
-                   srcset="maps/continent-1/truessant-district/display-remaster-700.webp 700w, maps/continent-1/truessant-district/display-remaster.webp 1400w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of Truessant District" width="1400" height="986" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/truessant-district/display-remaster-700.avif 700w, maps/continent-1/truessant-district/display-remaster.avif 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/truessant-district/display-remaster.webp"
+                     srcset="maps/continent-1/truessant-district/display-remaster-700.webp 700w, maps/continent-1/truessant-district/display-remaster.webp 1400w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of Truessant District" width="1400" height="986" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/truessant-district/display-original-700.avif 700w, maps/continent-1/truessant-district/display-original.avif 1400w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/truessant-district/display-original.webp"
-                   srcset="maps/continent-1/truessant-district/display-original-700.webp 700w, maps/continent-1/truessant-district/display-original.webp 1400w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Truessant District map scan" width="1400" height="986" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/truessant-district/display-original-700.webp 700w, maps/continent-1/truessant-district/display-original.webp 1400w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Truessant District map scan" width="1400" height="986" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -739,18 +805,24 @@
         </article>
 
         <!-- WAVESWATER -->
-        <article class="atlas-page" id="waveswater" style="--ar:0.734" data-tags="Wetland|Delta|Lake|Summit castle|Stilt village" data-title="Waveswater">
+        <article class="atlas-page" id="waveswater" style="--ar:0.734;--cis:1012px;--cis-m:1718px" data-tags="Wetland|Delta|Lake|Summit castle|Stilt village" data-title="Waveswater">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-waveswater">
-              <img class="img-base" src="maps/continent-1/waveswater/display-remaster.webp"
-                   srcset="maps/continent-1/waveswater/display-remaster-700.webp 700w, maps/continent-1/waveswater/display-remaster.webp 1028w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of Waveswater" width="1028" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/waveswater/display-remaster-700.avif 700w, maps/continent-1/waveswater/display-remaster.avif 1028w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/waveswater/display-remaster.webp"
+                     srcset="maps/continent-1/waveswater/display-remaster-700.webp 700w, maps/continent-1/waveswater/display-remaster.webp 1028w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of Waveswater" width="1028" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/waveswater/display-original-700.avif 700w, maps/continent-1/waveswater/display-original.avif 1028w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/waveswater/display-original.webp"
-                   srcset="maps/continent-1/waveswater/display-original-700.webp 700w, maps/continent-1/waveswater/display-original.webp 1028w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn Waveswater map scan" width="1028" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/waveswater/display-original-700.webp 700w, maps/continent-1/waveswater/display-original.webp 1028w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn Waveswater map scan" width="1028" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -791,18 +863,24 @@
         </article>
 
         <!-- WEST HAVEN DISTRICT -->
-        <article class="atlas-page" id="west-haven-district" style="--ar:0.700" data-tags="District|Volcano|Blossom woods|Farmland|Manor" data-title="West Haven District">
+        <article class="atlas-page" id="west-haven-district" style="--ar:0.700;--cis:1012px;--cis-m:1798px" data-tags="District|Volcano|Blossom woods|Farmland|Manor" data-title="West Haven District">
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-west-haven-district">
-              <img class="img-base" src="maps/continent-1/west-haven-district/display-remaster.webp"
-                   srcset="maps/continent-1/west-haven-district/display-remaster-700.webp 700w, maps/continent-1/west-haven-district/display-remaster.webp 980w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Remaster map of West Haven District" width="980" height="1400" loading="lazy" decoding="async">
+              <picture>
+                <source type="image/avif" srcset="maps/continent-1/west-haven-district/display-remaster-700.avif 700w, maps/continent-1/west-haven-district/display-remaster.avif 980w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
+                <img class="img-base" src="maps/continent-1/west-haven-district/display-remaster.webp"
+                     srcset="maps/continent-1/west-haven-district/display-remaster-700.webp 700w, maps/continent-1/west-haven-district/display-remaster.webp 980w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Remaster map of West Haven District" width="980" height="1400" loading="lazy" decoding="async">
+              </picture>
               <div class="img-after">
+                <picture>
+                <source type="image/avif" srcset="maps/continent-1/west-haven-district/display-original-700.avif 700w, maps/continent-1/west-haven-district/display-original.avif 978w" sizes="(max-width: 980px) calc(100vw - 80px), 700px">
                 <img src="maps/continent-1/west-haven-district/display-original.webp"
-                   srcset="maps/continent-1/west-haven-district/display-original-700.webp 700w, maps/continent-1/west-haven-district/display-original.webp 978w"
-                   sizes="(max-width: 980px) calc(100vw - 80px), 700px"
-                   alt="Original hand-drawn West Haven District map scan" width="978" height="1400" loading="lazy" decoding="async">
+                     srcset="maps/continent-1/west-haven-district/display-original-700.webp 700w, maps/continent-1/west-haven-district/display-original.webp 978w"
+                     sizes="(max-width: 980px) calc(100vw - 80px), 700px"
+                     alt="Original hand-drawn West Haven District map scan" width="978" height="1400" loading="lazy" decoding="async">
+              </picture>
               </div>
               <div class="compare-divider">
                 <div class="compare-handle">
@@ -877,6 +955,7 @@
         <span>Zoom <span id="viewerZoom">100%</span></span>
       </div>
       <div class="viewer-actions">
+        <button class="viewer-btn" type="button" id="viewerUpgrade" hidden>Load full resolution</button>
         <a class="viewer-btn" id="viewerDownload" href="" download>Download full resolution</a>
       </div>
     </div>
@@ -944,6 +1023,9 @@
         const page    = group.closest('.atlas-page');
         const wrap    = page.querySelector('.compare-wrap');
         const baseImg = wrap.querySelector('img.img-base');
+        /* The AVIF <source> wins over the img's own srcset, so swapping only
+           the img would leave an AVIF-capable browser showing the old art. */
+        const baseAvif = baseImg.closest('picture')?.querySelector('source[type="image/avif"]');
         const label   = wrap.querySelector('[data-active-label]');
         const openBtn = page.querySelector('[data-open-active]');
         const noun    = openBtn?.querySelector('[data-active-noun]');
@@ -959,8 +1041,9 @@
             b.setAttribute('aria-pressed', String(on));
           });
 
-          /* Set srcset before src so the browser resolves the candidate list
-             once, rather than fetching src and then re-picking. */
+          /* AVIF source first, then the img's own srcset, then src - the
+             browser re-runs selection once the whole set is consistent. */
+          if (baseAvif) baseAvif.srcset = d.avif;
           baseImg.srcset = d.srcset;
           baseImg.src    = d.src;
           baseImg.width  = d.w;
@@ -996,6 +1079,7 @@
       const vZoom    = document.getElementById('viewerZoom');
       const vDownload= document.getElementById('viewerDownload');
       const vClose   = document.getElementById('viewerClose');
+      const vUpgrade = document.getElementById('viewerUpgrade');
 
       let scale = 1, fit = 1, tx = 0, ty = 0;
       const pointers = new Map();
@@ -1027,24 +1111,94 @@
         scale = k; clamp(); render();
       }
 
+      /* On a narrow screen the master is the single most expensive thing on the
+         page - up to 4.2 MB for one tap, on the connection least able to afford
+         it. Open the display image the page has already downloaded instead:
+         instant, zero extra bytes, and enough pixels to zoom usefully on a
+         phone. Full resolution stays one deliberate tap away. */
+      const NARROW_VIEWPORT = 820;
+      const preferPreview = () => window.innerWidth <= NARROW_VIEWPORT;
+      let pendingMaster = null;
+
+      function showUpgrade(btn) {
+        pendingMaster = {
+          src: btn.dataset.view,
+          dims: btn.dataset.dims || '',
+          size: btn.dataset.size || '',
+        };
+        vUpgrade.hidden = false;
+        vUpgrade.textContent = 'Load full resolution (' + pendingMaster.size + ')';
+      }
+
+      function loadMaster() {
+        if (!pendingMaster) return;
+        const { src, dims, size } = pendingMaster;
+        vUpgrade.hidden = true;
+        vUpgrade.textContent = 'Loading...';
+        pendingMaster = null;
+        vImg.addEventListener('load', () => { fitToStage(); reportDims(); }, { once: true });
+        vImg.src = src;
+        vDims.textContent = dims;
+        vSize.textContent = size;
+      }
+
+      /* Reuse the exact file the page already downloaded, rather than a fixed
+         URL: the browser may have chosen AVIF or WebP, and the narrow or large
+         tier, so only currentSrc is guaranteed to be a cache hit. */
+      function cachedPreviewFor(btn) {
+        const page = btn.closest('.atlas-page');
+        if (!page) return null;
+        const el = btn.hasAttribute('data-open-active')
+          ? page.querySelector('img.img-base')
+          : page.querySelector('.img-after img');
+        if (!el || !el.currentSrc || !el.naturalWidth) return null;
+        /* Only the URL is taken from here. naturalWidth on a srcset-selected
+           image is density-corrected to CSS pixels - a 700w file in a 334px
+           slot reports 334 - so the real size is read off the viewer's own
+           <img>, which has no srcset, once it has loaded. */
+        return { src: el.currentSrc };
+      }
+
+      /** True file dimensions: the viewer img carries no srcset. */
+      function reportDims() {
+        if (vImg.naturalWidth) vDims.textContent = vImg.naturalWidth + '×' + vImg.naturalHeight;
+      }
+
       function openViewer(btn) {
         vImg.removeAttribute('src');
-        vImg.src = btn.dataset.view;
+        vImg.removeAttribute('srcset');
+        vUpgrade.hidden = true;
+        pendingMaster = null;
+
+        const preview = preferPreview() ? cachedPreviewFor(btn) : null;
+
         vImg.alt = btn.dataset.alt || '';
-        vDims.textContent = btn.dataset.dims || '';
-        vSize.textContent = btn.dataset.size || '';
+        if (preview) {
+          vImg.src = preview.src;
+          vDims.textContent = '';
+          vSize.textContent = 'preview';
+          showUpgrade(btn);
+        } else {
+          vImg.src = btn.dataset.view;
+          vDims.textContent = btn.dataset.dims || '';
+          vSize.textContent = btn.dataset.size || '';
+        }
+        /* The download link always points at the true master, whatever is shown. */
         vDownload.href = btn.dataset.view;
+
         viewer.classList.add('open');
         viewer.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        if (vImg.complete && vImg.naturalWidth) fitToStage();
-        else vImg.addEventListener('load', fitToStage, { once: true });
+        if (vImg.complete && vImg.naturalWidth) { fitToStage(); reportDims(); }
+        else vImg.addEventListener('load', () => { fitToStage(); reportDims(); }, { once: true });
       }
       function closeViewer() {
         viewer.classList.remove('open');
         viewer.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
         vImg.removeAttribute('src');
+        vUpgrade.hidden = true;
+        pendingMaster = null;
         pointers.clear();
       }
 
@@ -1064,6 +1218,7 @@
         btn.addEventListener('click', () => { openViewer(btn); countViewerOpen(btn); });
       });
       vClose.addEventListener('click', closeViewer);
+      vUpgrade.addEventListener('click', loadMaster);
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && viewer.classList.contains('open')) closeViewer();
       });
