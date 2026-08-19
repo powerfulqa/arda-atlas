@@ -37,14 +37,54 @@ async function resolveImages(continentId, map) {
   const relBase = `maps/${continentId}/${map.slug}`;
   const pick = async (file) => imageInfo(path.join(dir, file), `${relBase}/${file}`);
 
-  const [masterOriginal, masterRemaster, displayOriginal, displayRemaster] = await Promise.all([
+  const [
+    masterOriginal,
+    masterRemaster,
+    displayOriginal,
+    displayRemaster,
+    narrowOriginal,
+    narrowRemaster,
+  ] = await Promise.all([
     pick(map.original),
     pick(map.remaster),
     pick('display-original.webp'),
     pick('display-remaster.webp'),
+    pick('display-original-700.webp'),
+    pick('display-remaster-700.webp'),
   ]);
 
-  return { masterOriginal, masterRemaster, displayOriginal, displayRemaster };
+  return {
+    masterOriginal,
+    masterRemaster,
+    displayOriginal,
+    displayRemaster,
+    narrowOriginal,
+    narrowRemaster,
+  };
+}
+
+/**
+ * srcset for one image, narrow tier plus large tier.
+ *
+ * `sizes` has to describe the real layout or this achieves nothing: with w
+ * descriptors and no sizes the browser assumes 100vw and picks the LARGEST
+ * candidate, which is exactly the behaviour we are trying to stop.
+ *
+ * Slider: the atlas-page grid gives the visual column ~700 CSS px at desktop
+ * widths (measured 696-699, and .wrap caps at 1320 so it does not grow), and
+ * below 980px the layout is single-column at roughly 100vw - 80px.
+ */
+const SLIDER_SIZES = '(max-width: 980px) calc(100vw - 80px), 700px';
+const HERO_SIZES = '(max-width: 980px) calc(100vw - 80px), 520px';
+
+function srcsetAttr(narrow, large) {
+  // Skip the large candidate when the master was too small to exceed the narrow
+  // tier, otherwise the descriptors would tie or invert.
+  const parts =
+    large.w > narrow.w
+      ? [`${narrow.rel} ${narrow.w}w`, `${large.rel} ${large.w}w`]
+      : [`${narrow.rel} ${narrow.w}w`];
+  return parts.join(', ');
 }
 
 // ---------------------------------------------------------------- templates
@@ -56,9 +96,13 @@ function comparePane(map, img) {
           <div class="page-visual">
             <div class="compare-wrap" id="cmp-${esc(map.slug)}">
               <img class="img-base" src="${esc(img.displayRemaster.rel)}"
+                   srcset="${esc(srcsetAttr(img.narrowRemaster, img.displayRemaster))}"
+                   sizes="${esc(SLIDER_SIZES)}"
                    alt="Remastered map of ${esc(map.title)}" width="${img.displayRemaster.w}" height="${img.displayRemaster.h}" loading="lazy" decoding="async">
               <div class="img-after">
                 <img src="${esc(img.displayOriginal.rel)}"
+                     srcset="${esc(srcsetAttr(img.narrowOriginal, img.displayOriginal))}"
+                     sizes="${esc(SLIDER_SIZES)}"
                      alt="Original hand-drawn ${esc(map.title)} map scan" width="${img.displayOriginal.w}" height="${img.displayOriginal.h}" loading="lazy" decoding="async">
               </div>
               <div class="compare-divider">
@@ -628,9 +672,11 @@ ${introCards
           </div>
         </div>
         <div class="hero-aside">
-          <img src="${esc(hero._img.displayRemaster.rel)}" alt="Remastered map of ${esc(
-    hero.title
-  )}" width="${hero._img.displayRemaster.w}" height="${hero._img.displayRemaster.h}" loading="eager" fetchpriority="high">
+          <img src="${esc(hero._img.displayRemaster.rel)}" srcset="${esc(
+    srcsetAttr(hero._img.narrowRemaster, hero._img.displayRemaster)
+  )}" sizes="${esc(HERO_SIZES)}" alt="Remastered map of ${esc(hero.title)}" width="${
+    hero._img.displayRemaster.w
+  }" height="${hero._img.displayRemaster.h}" loading="eager" fetchpriority="high">
         </div>
       </div>
     </section>

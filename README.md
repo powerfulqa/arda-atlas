@@ -101,20 +101,58 @@ free number, so any reference to "page 006" stays valid.
 
 ## How images are served
 
-Two tiers, which is what keeps the site inside GitHub's limits:
+Three tiers, which is what keeps the site inside GitHub's limits:
 
 | Tier | File | Used by | Size |
 |---|---|---|---|
-| Display | `display-original.webp`, `display-remaster.webp` | the compare slider and hero | ~350 KB each |
-| Master | `original.*`, `remaster.png` | the full-resolution viewer only, on click | 2-4 MB each |
+| Narrow | `display-*-700.webp` | 1x displays, via `srcset` | ~75-285 KB |
+| Large | `display-*.webp` | 2x and 3x displays, via `srcset` | ~180-520 KB |
+| Master | `original.*`, `remaster.png` | the full-resolution viewer only, on click | 2-4 MB |
 
-The masters are never fetched on page load. Measured full-scroll page transfer is **6.4 MB**
-against **52.4 MB** before the split - an 88% reduction, taking the site from roughly 1,950
-to about 15,900 full page views per month against Pages' 100 GB/month soft bandwidth limit.
+The masters are never fetched on page load. Measured full-scroll transfer:
 
-Derivatives are 1400 px on the long edge (the slider is at most ~700 CSS px wide, so this
-covers 2x DPR) at WebP quality 82. Re-runs skip anything already up to date; use
-`npm run derivatives -- --force` to rebuild everything.
+| Visitor | Image bytes |
+|---|---|
+| Before any of this | 52.4 MB |
+| 1x display (most desktops) | **3.1 MB** |
+| 2x / 3x display | 6.3 MB |
+
+That is about 33,000 full-scroll views per month for 1x visitors, or 16,000 for high-DPR
+ones, against Pages' 100 GB/month soft bandwidth limit.
+
+### Why two display widths
+
+The compare slider is at most ~700 CSS px wide on desktop (measured 696-699; `.wrap` caps
+at 1320 px so it does not grow) and ~334 px on a phone. A 1x display was therefore being
+sent an image roughly twice as wide as it could possibly show.
+
+The narrow tier is generated **by width**, unlike the large tier which fits inside a
+1400 px box - `srcset` descriptors are widths, and a portrait map fitted to a 1400 box is
+only ~984 px wide. Adding a narrow tier rather than regenerating the large one by width
+means high-DPR visitors download exactly what they did before, instead of more.
+
+`sizes` is not optional here. With `w` descriptors and no `sizes`, the browser assumes
+100vw and picks the largest candidate, which would undo the whole thing. It is set to
+`(max-width: 980px) calc(100vw - 80px), 700px`, matching the real grid.
+
+WebP quality 82. Re-runs skip anything already up to date; `npm run derivatives -- --force`
+rebuilds everything.
+
+### Room left, if it is ever wanted
+
+- **AVIF** alongside WebP would cut a further ~48% (measured: 6.29 MB to 3.17 MB at the
+  same dimensions), at ~0.39s per image of build time. This is the main lever left for
+  **mobile**, which still gets the large tier because a 3x phone needs ~1000 px.
+- **A right-sized hero.** It renders at 520x390 but the narrow tier is 700 px wide, so it
+  is still ~2x oversized. A dedicated 520 px tier would take it to 75 KB WebP or 37 KB AVIF.
+- **Self-hosted fonts** would remove two third-party origins and a render-blocking
+  stylesheet from the critical path (currently 83.9 KB from `fonts.gstatic.com`).
+- **`content-visibility: auto`** on `.atlas-page` would let the browser skip layout and
+  paint for offscreen maps. Minor at 9 maps, significant at 400.
+
+Measured and deliberately **not** done: minifying the HTML/CSS/JS (70 KB raw is 15.3 KB
+gzipped, so there is nothing to win) and cache tuning (Pages hardcodes `max-age=600` and
+offers no way to change it).
 
 ### Storage ceiling still to solve
 

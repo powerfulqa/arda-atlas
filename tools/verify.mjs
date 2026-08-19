@@ -32,10 +32,16 @@ async function walk(dir, base = dir, out = []) {
 
 console.log('Asset references');
 const onDisk = new Set([...(await walk(path.join(ROOT, 'maps'))), ...(await walk(path.join(ROOT, 'assets')))]);
+// srcset holds "url 700w, url 1400w", so it needs splitting rather than a
+// single-value match - otherwise the narrow tier reads as orphaned.
+const srcsetRefs = [...html.matchAll(/srcset="([^"]+)"/g)].flatMap((m) =>
+  m[1].split(',').map((c) => c.trim().split(/\s+/)[0])
+);
 const refs = [
-  ...new Set(
-    [...html.matchAll(/(?:src|href|data-view)="((?:maps|assets)\/[^"]+)"/g)].map((m) => m[1])
-  ),
+  ...new Set([
+    ...[...html.matchAll(/(?:src|href|data-view)="((?:maps|assets)\/[^"]+)"/g)].map((m) => m[1]),
+    ...srcsetRefs,
+  ]),
 ];
 const broken = refs.filter((r) => !onDisk.has(r));
 note(broken.length === 0, `${refs.length} referenced assets resolve case-sensitively`, broken.join(', '));
@@ -76,6 +82,41 @@ for (const [, id, ar, baseSrc, overlaySrc] of panes) {
 }
 note(arBad.length === 0, `all --ar values match their base image ratio`, arBad.join('; '));
 note(layerBad.length === 0, `base=remaster, overlay=original on every pane`, layerBad.join('; '));
+
+console.log('\nResponsive images');
+const imgTags = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
+const responsive = imgTags.filter((t) => /srcset=/.test(t));
+const sliderAndHero = imgTags.filter((t) => /display-[a-z]+\.webp/.test(t));
+note(
+  responsive.length === sliderAndHero.length && responsive.length > 0,
+  `all ${sliderAndHero.length} display-tier images carry srcset`,
+  `${responsive.length} have it`
+);
+// Without sizes, a w-descriptor srcset makes the browser assume 100vw and pick
+// the largest candidate - which would silently undo the whole optimisation.
+note(
+  responsive.every((t) => /sizes="/.test(t)),
+  'every srcset is paired with a sizes attribute'
+);
+
+const descriptorBad = [];
+for (const tag of responsive) {
+  const set = tag.match(/srcset="([^"]+)"/)[1];
+  for (const cand of set.split(',').map((s) => s.trim())) {
+    const [rel, desc] = cand.split(/\s+/);
+    if (!onDisk.has(rel)) {
+      descriptorBad.push(`${rel} missing on disk`);
+      continue;
+    }
+    const meta = await sharp(path.join(ROOT, rel)).metadata();
+    const declared = parseInt(desc, 10);
+    if (meta.width !== declared) descriptorBad.push(`${rel} declared ${declared}w, is ${meta.width}w`);
+  }
+}
+note(descriptorBad.length === 0, 'every srcset descriptor matches the real file width', descriptorBad.join('; '));
+
+const narrowCount = [...html.matchAll(/display-[a-z]+-700\.webp/g)].length;
+note(narrowCount > 0, `narrow 700w tier referenced ${narrowCount} times`);
 
 console.log('\nImage tier routing');
 const sliderMasters = [...html.matchAll(/class="img-base" src="([^"]+)"|<div class="img-after">\s*<img src="([^"]+)"/g)]
