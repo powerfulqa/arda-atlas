@@ -70,8 +70,16 @@ function comparePane(map, img) {
               <span class="compare-label remas">Remastered</span>
             </div>
             <div class="actions">
-              <button class="btn primary" type="button" data-view="${esc(img.masterRemaster.rel)}" data-alt="Remastered map of ${esc(map.title)}" data-dims="${img.masterRemaster.w}&#215;${img.masterRemaster.h}" data-size="${kb(img.masterRemaster.bytes)}">Open remaster</button>
-              <button class="btn" type="button" data-view="${esc(img.masterOriginal.rel)}" data-alt="Original hand-drawn ${esc(map.title)} map scan" data-dims="${img.masterOriginal.w}&#215;${img.masterOriginal.h}" data-size="${kb(img.masterOriginal.bytes)}">Open original</button>
+              <button class="btn primary" type="button" data-view="${esc(img.masterRemaster.rel)}" data-alt="Remastered map of ${esc(
+    map.title
+  )}" data-dims="${img.masterRemaster.w}&#215;${img.masterRemaster.h}" data-size="${kb(
+    img.masterRemaster.bytes
+  )}" data-event="view-${esc(map.slug)}-remaster">Open remaster</button>
+              <button class="btn" type="button" data-view="${esc(img.masterOriginal.rel)}" data-alt="Original hand-drawn ${esc(
+    map.title
+  )} map scan" data-dims="${img.masterOriginal.w}&#215;${img.masterOriginal.h}" data-size="${kb(
+    img.masterOriginal.bytes
+  )}" data-event="view-${esc(map.slug)}-original">Open original</button>
             </div>
           </div>`;
 }
@@ -404,8 +412,20 @@ const SCRIPT = String.raw`
         pointers.clear();
       }
 
+      /* The atlas is one page, so a plain pageview says nothing about which map
+         anyone looked at. Counting viewer opens is the useful signal. Guarded
+         because count.js is async and may not have executed yet - a missed
+         event is acceptable, a broken viewer is not. */
+      function countViewerOpen(btn) {
+        const name = btn.dataset.event;
+        if (!name) return;
+        try {
+          window.goatcounter?.count?.({ path: name, title: 'Viewer: ' + (btn.dataset.alt || name), event: true });
+        } catch {}
+      }
+
       document.querySelectorAll('[data-view]').forEach(btn => {
-        btn.addEventListener('click', () => openViewer(btn));
+        btn.addEventListener('click', () => { openViewer(btn); countViewerOpen(btn); });
       });
       vClose.addEventListener('click', closeViewer);
       document.addEventListener('keydown', e => {
@@ -479,6 +499,20 @@ const SCRIPT = String.raw`
         }));
       });
     })();`;
+
+/**
+ * Analytics tag. Served from our own origin rather than the gc.zgo.at CDN,
+ * which Pi-hole and the common blocklists blackhole - that silently undercounts
+ * rather than failing loudly. count.js reads its endpoint from the
+ * data-goatcounter attribute, so this behaves identically to the hosted script.
+ * Omit the `analytics` block from the manifest to ship no tracking at all.
+ */
+function analyticsTag(analytics) {
+  if (!analytics?.endpoint || !analytics?.script) return '';
+  return `  <script data-goatcounter="${esc(analytics.endpoint)}" src="${esc(
+    analytics.script
+  )}" async></script>\n`;
+}
 
 // -------------------------------------------------------------------- render
 
@@ -666,7 +700,7 @@ ${notes.map((n) => `        <div class="note"><strong>${esc(n.title)}</strong><b
 
   <script>${SCRIPT}
   </script>
-</body>
+${analyticsTag(manifest.analytics)}</body>
 </html>
 `;
 

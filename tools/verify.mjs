@@ -117,6 +117,32 @@ note(stack.length === 0 && mismatches.length === 0, 'tags balanced', `unclosed: 
 console.log('\nGenerated-file guard');
 note(/GENERATED FILE - DO NOT EDIT BY HAND/.test(html), 'index.html carries the generated-file banner');
 
+console.log('\nAnalytics');
+const manifest = JSON.parse(await fs.readFile(path.join(ROOT, 'data', 'maps.json'), 'utf8'));
+if (!manifest.analytics) {
+  console.log('  SKIP  no analytics block in the manifest');
+} else {
+  const tag = html.match(/<script data-goatcounter="([^"]+)" src="([^"]+)"[^>]*><\/script>/);
+  note(!!tag, 'analytics tag present');
+  if (tag) {
+    note(tag[1] === manifest.analytics.endpoint, `endpoint matches the manifest`, tag[1]);
+    // Serving from our own origin is the point: the gc.zgo.at CDN is blocked by
+    // Pi-hole and the common blocklists, which undercounts silently.
+    note(!/^https?:|^\/\//.test(tag[2]), 'script served from our own origin, not a CDN', tag[2]);
+    note(onDisk.has(tag[2]), 'vendored script exists on disk', tag[2]);
+    const vendored = await fs.readFile(path.join(ROOT, tag[2]), 'utf8');
+    note(/window\.goatcounter/.test(vendored) && /\}\)\(\);?\s*$/.test(vendored.trim() + ''), 'vendored count.js looks complete');
+  }
+  const events = [...html.matchAll(/data-event="([^"]+)"/g)].map((m) => m[1]);
+  const viewButtons = [...html.matchAll(/data-view="/g)].length;
+  note(
+    events.length === viewButtons,
+    `every one of the ${viewButtons} viewer buttons carries an event name`,
+    `${events.length} events`
+  );
+  note(new Set(events).size === events.length, 'event names unique');
+}
+
 console.log('');
 if (failures.length) {
   console.log(`${failures.length} check(s) failed.`);

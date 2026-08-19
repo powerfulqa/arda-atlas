@@ -273,5 +273,11 @@
         }
       ]
     }
-  ]
+  ],
+  "analytics": {
+    "provider": "goatcounter",
+    "endpoint": "https://powerfulqa.goatcounter.com/count",
+    "script": "assets/count.js",
+    "countViewerOpens": true
+  }
 }

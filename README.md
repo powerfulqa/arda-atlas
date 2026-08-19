@@ -124,6 +124,80 @@ caps a published site at 1 GB**, which lands somewhere around 170 maps. When tha
 approaches, move the masters out of the published tree - GitHub Releases or a separate
 archive repo - and point the `data-view` URLs at their new home.
 
+## Analytics
+
+GoatCounter, reporting to the same site as the portfolio: **https://powerfulqa.goatcounter.com**.
+Both pages live under `powerfulqa.github.io`, so one dashboard covers both and the path
+separates them - `/` for the portfolio, `/arda-atlas/` for the atlas.
+
+Configured in `data/maps.json`. Delete the `analytics` block to ship no tracking at all.
+
+```json
+"analytics": {
+  "provider": "goatcounter",
+  "endpoint": "https://powerfulqa.goatcounter.com/count",
+  "script": "assets/count.js",
+  "countViewerOpens": true
+}
+```
+
+### Why the script is vendored
+
+`assets/count.js` is a pinned copy of GoatCounter's ISC-licensed script rather than the
+hosted `//gc.zgo.at/count.js`. **Pi-hole and the common blocklists blackhole `gc.zgo.at`**,
+which undercounts silently instead of failing loudly; `powerfulqa.goatcounter.com` is not on
+those lists, so serving the script from our own origin gets materially more accurate counts.
+Behaviour is identical - count.js reads its endpoint from the `data-goatcounter` attribute.
+
+To refresh the pinned copy:
+
+```
+curl -o assets/count.js https://raw.githubusercontent.com/arp242/goatcounter/master/public/count.js
+```
+
+Then re-add the provenance header at the top of the file and run `npm run verify`.
+
+### Excluding your own visits
+
+A side effect of vendoring: if your network previously blocked `gc.zgo.at`, **your own
+visits were never counted and now they will be.** To exclude this browser, load:
+
+```
+https://powerfulqa.github.io/arda-atlas/#toggle-goatcounter
+```
+
+It sets a `skipgc` flag in localStorage and confirms with an alert. Load it again to re-enable.
+Per-browser, so repeat on each device.
+
+### Which maps get looked at
+
+The atlas is a single page, so a plain pageview would only ever record `/arda-atlas/` and
+tell you nothing about the maps. Opening a map full-resolution therefore sends a GoatCounter
+**event** named `view-<slug>-<original|remaster>`, e.g. `view-stormwind-district-remaster`.
+These appear under Events in the dashboard, and show which maps people actually inspect and
+whether they favour the hand-drawn scans or the remasters - worth passing back to the author.
+
+`npm run verify` asserts the tag is present, points at the manifest's endpoint, is served
+from our own origin rather than a CDN, and that all 18 viewer buttons carry unique event names.
+
+### What it does and does not collect
+
+Every request sends exactly: path, referrer, page title, an event flag, screen width, a
+bot score, the query string, and a cache-busting random value. Verified against the payload
+in a browser, not just the docs:
+
+- **No cookies.** Confirmed empty cookie jar after a full page load.
+- No localStorage identifier - the only key is `skipgc`, the opt-out above.
+- No fingerprinting.
+- Country and browser are derived server-side from IP and User-Agent, then the IP is discarded.
+
+So it answers *how many, from where, via what, and which maps* - **never who**. There is no
+per-person identity and no way to follow an individual between visits. That is deliberate on
+GoatCounter's part and is why it generally needs no cookie banner.
+
+Local visits are not counted: count.js refuses `localhost`, `127.*`, `192.168.*` and
+`file:` URLs, so `npm run serve` never pollutes the stats.
+
 ## File naming rules
 
 GitHub Pages serves from a case-sensitive Linux filesystem, so a mismatch that works on
